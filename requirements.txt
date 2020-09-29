@@ -1,0 +1,11 @@
+asgiref==3.2.10
+confusable-homoglyphs==3.2.0
+Django==3.1.1
+django-appconf==1.0.4
+django-crispy-forms==1.9.2
+django-phonenumber-field==5.0.0
+django-registration==3.1.1
+phonenumbers==8.12.9
+psycopg2==2.8.6
+pytz==2020.1
+sqlparse==0.3.1
