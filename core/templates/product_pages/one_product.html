@@ -1,0 +1,356 @@
+{% extends 'base_templates.html' %}
+
+{% block title %}PrintoPlace - {{ name }}{% endblock %}
+
+{% block content %}
+<!-- Settings product -->
+<div class="bg-light py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 col-md-8">
+				<div class="shadow bg-white rounded mx-auto" style="height: 355px; width: 252px;">
+					<!-- <img src="image/123.jpeg" class="mw-100 mh-100"> -->
+				</div>
+
+				<div class="d-flex justify-content-center p-3 mt-3">
+					<button type="button" class="btn btn-outline-secondary rounded-circle rotate-btn"><i class="fas fa-angle-left"></i></button>
+					<p class="text-secondary my-auto mx-3">Перед</p>
+					<button type="button" class="btn btn-outline-secondary rounded-circle rotate-btn"><i class="fas fa-angle-right"></i></button>
+				</div>
+
+				<div class="bg-white rounded p-3 mt-3">
+					<div class="custom-file">
+						<input type="file" class="custom-file-input" id="customFileLangHTML">
+						<label class="custom-file-label" for="customFileLangHTML" data-browse="Загрузить">Загрузить оформление</label>
+					</div>
+					<div class="pt-2">
+						<a class="text-secondary" data-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">Шаблоны</a>
+						<div class="collapse h1 pl-3" id="collapseExample1">
+							<a href="#"><i class="far fa-file-word"></i></a>
+							<a href="#"><i class="far fa-file-pdf"></i></a>
+							<a href="#"><i class="far fa-file-powerpoint"></i></a>
+							<a href="#"><i class="far fa-file-image"></i></a>
+							<a href="#"><i class="far fa-file-excel"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12 col-md-4 mt-3 mt-md-0">
+				<div class="bg-white rounded text-secondary p-3">
+					<div class="text-center"><h4>{{ name }}</h4></div>
+					<div class="text-right display-4 py-3">84р</div>
+
+					<div class="row mt-3">
+						<div class="col-4"><p class="text-secondary">Формат</p></div>
+						<div class="col-8">
+							<select class="form-control form-control-sm mt-2 mt-md-0">
+								<option>54 x 86 mm</option>
+								<option>86 x 54 mm</option>
+							</select>
+						</div>
+
+						<div class="col-4"><p class="text-secondary">Цвет</p></div>
+						<div class="col-8">
+							<select class="form-control form-control-sm mt-2 mt-md-0">
+								<option>4/4 = двусторонний четырехцветный</option>
+							</select>
+						</div>
+
+						<div class="col-4"><p class="text-secondary">Материал</p></div>
+						<div class="col-8">
+							<select class="form-control form-control-sm mt-2 mt-md-0">
+								<option>0,6мм жесткий ПВХ белый</option>
+								<option>0,6мм жесткий ПВХ серебро</option>
+							</select>
+						</div>
+
+						<div class="col-4"><p class="text-secondary">Отделка</p></div>
+						<div class="col-8">
+							<select class="form-control form-control-sm mt-2 mt-md-0">
+								<option>Без отделки</option>
+								<option>Блеск для ламинирования фольгой</option>
+								<option>Ламинирование фольги матовое</option>
+								<option>Горячее золото из фольги спереди</option>
+								<option>Серебро из фольги спереди</option>
+							</select>
+						</div>
+
+						<div class="col-4"><p class="text-secondary">Скругления</p></div>
+						<div class="col-8">
+							<select class="form-control form-control-sm mt-2 mt-md-0">
+								<option>Без скругления</option>
+								<option>7 мм</option>
+							</select>
+						</div>
+
+						<div class="col-4"><p class="text-secondary">Время доставки</p></div>
+						<div class="col-8">
+							<select class="form-control form-control-sm mt-2 mt-md-0">
+								<option>До 24ч(+10%)</option>
+								<option>Обычная</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row mt-3">
+						<div class="col-6 input-group mb-3">
+							<div class="input-group-prepend">
+								<button class="btn btn-outline-secondary" type="button" id="button-addon1"><i class="fas fa-minus"></i></button>
+							</div>
+							<input type="text" class="form-control" placeholder="Количество" aria-describedby="button-addon1" value="10">
+							<div class="input-group-append">
+								<button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fas fa-plus"></i></button>
+							</div>
+						</div>
+
+						<div class="col-6">
+							<a href="shopping_cart.html" class="btn btn-primary w-100" type="button">В корзину</a>
+						</div>
+					</div>
+
+					<div class="row mt-3">
+						<h5 class="col-6">ИТОГО:</h5>
+						<h5 class="col-6 text-right">924p</h5>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Product description -->
+<div class="pt-5">
+	<div class="container">
+		<h3 class="text-secondary mb-5">Описание продукта</h3>
+		<div class="row">
+			<div class="col-md-4 col-sm-12 pb-5">
+				<p class="text-primary h4 mb-2">Индивидуально</p>
+				<p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br><br>Sed do eiusmod
+				tempor incididunt ut labore et dolore magna aliqua. Excepteur sint occaecat cupidatat non
+				proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			</div>
+
+			<div class="col-md-4 col-sm-12 pb-5">
+				<p class="text-primary h4 mb-2">Удобный</p>
+				<p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+				tempor incididunt ut labore et dolore magna aliqua.</p>
+				<ul class="text-secondary">
+					<li>Ut enim ad minim veniam</li>
+					<li>Purus sodales ultricies</li>
+					<li>Lorem ipsum dolor sit amet</li>
+					<li>Vestibulum laoreet porttitor sem</li>
+				</ul>
+			</div>
+
+			<div class="col-md-4 col-sm-12 pb-5">
+				<p class="text-primary h4 mb-2">Вдохновляющий</p>
+				<p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+				tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+				quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Product gallery -->
+<div class="bg-light py-5">
+	<div class="container">
+		<h3 class="text-secondary mb-5">Галерея продукта</h3>
+		<div class="row">
+
+			{% load static %}
+			<div class="col-12 col-md-4 pb-5">
+				<div class="card">
+					<img src="{% static 'image/Cards-Mockup.jpg' %}" class="card-img-top">
+					<div class="card-body">
+						<h5 class="card-title">Card title</h5>
+						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12 col-md-4 pb-5">
+				<div class="card">
+					<img src="{% static 'image/Cards-Mockup.jpg' %}" class="card-img-top">
+					<div class="card-body">
+						<h5 class="card-title">Card title</h5>
+						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12 col-md-4 pb-5">
+				<div class="card">
+					<img src="{% static 'image/Cards-Mockup.jpg' %}" class="card-img-top">
+					<div class="card-body">
+						<h5 class="card-title">Card title</h5>
+						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Contact Information -->
+<div class="bg-primary">
+	<div class="container pb-4">
+		<div class="row">
+			<div class="col-md-8 mt-4">
+				<div class="d-flex flex-column bd-highlight">
+					<div class="bd-highlight"><h3 class="text-white">Любые вопросы?</h3></div>
+					<div class="bd-highlight"><p class="text-white mb-0">Проконсультируем в личной беседе.</p></div>
+				</div>
+			</div>
+			<div class="col-md-4 mt-4">
+				<div class="d-flex flex-column bd-highlight">
+					<div class="bd-highlight ml-auto"><h3 class="text-white"><i class="fas fa-phone"></i> +7 (999) 999-9999</h3></div>
+					<div class="bd-highlight ml-auto"><p class="text-white mb-0"><i class="fas fa-at"></i> Email: service@viaprinto.de</p></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Shipping and payment -->
+<div class="bg-light">
+	<div class="container pb-5">
+		<div class="row">
+			<div class="col-md-3 col-sm-12 mt-5 px-4">
+				<h3 class="text-secondary">Доставка</h3>
+				<div class="row">
+
+					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
+						<a href="#">
+							<div class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-6 col-md-12 pt-0 pt-md-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-2 py-3">
+								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-12 mt-5 px-4">
+				<h3 class="text-secondary">Оплата</h3>
+				<div class="row">
+
+					<div class="col-3 pb-2 px-2">
+						<a href="#">
+							<div class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 pb-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 pb-2 px-2">
+						<a href="#">
+							<div class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 pb-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-6 pt-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-2 py-3">
+								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-6 pt-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-2 py-3">
+								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-12 mt-5 px-4">
+				<h3 class="text-secondary">Соц. сети</h3>
+				<div class="row">
+
+					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
+						<a href="#">
+							<div class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 col-md-6 pt-0 pt-md-2 px-2">
+						<a href="#">
+							<div class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+					<div class="col-3 col-md-6 pt-0 pt-md-2 px-2">
+						<a href="#">
+							<div  class="bg-white w-100 h-100 px-3 py-2">
+								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
+							</div>
+						</a>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Footer -->
+<div>
+	<div class="container pb-2 pt-2">
+		<div class="d-flex justify-content-between">
+			<div class="d-inline-flex p-2 bd-highlight"><p class="text-secondary mb-0">Copyright © AirPrint 2020</p></div>
+			<div class="d-inline-flex p-2 bd-highlight"><a href="privacy_policy.html" class="text-secondary">Соглашения и договор</a></div>
+		</div>
+	</div>
+</div>
+{% endblock %}
