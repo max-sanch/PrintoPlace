@@ -42,10 +42,17 @@
 							</li>
 
 							{% if request.user.is_authenticated %}
-							{% url 'personal_account' as personal_account_url %}
-							<li class="nav-item {% if personal_account_url == request.path %}active{% endif %}">
-								<a class="nav-link" href="{% url 'personal_account' %}">{{ request.user }}</a>
-							</li>
+								{% if request.user.is_admin %}
+								{% url 'admin_panel' as admin_panel_url %}
+								<li class="nav-item {% if admin_panel_url == request.path %}active{% endif %}">
+									<a class="nav-link" href="{% url 'admin_panel' %}">Панель</a>
+								</li>
+								{% else %}
+								{% url 'personal_account' as personal_account_url %}
+								<li class="nav-item {% if personal_account_url == request.path %}active{% endif %}">
+									<a class="nav-link" href="{% url 'personal_account' %}">{{ request.user }}</a>
+								</li>
+								{% endif %}
 							<li class="nav-item">
 								<a class="nav-link pl-0" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i></a>
 							</li>

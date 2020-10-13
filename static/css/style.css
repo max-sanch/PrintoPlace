@@ -112,6 +112,10 @@ input:focus, input:hover select:focus, select:hover {
     color: #f3651b;
 }
 
+.mw-22rem {
+    max-width: 22rem!important;
+}
+
 .w-16rem {
     width: 16rem!important;
 }

@@ -5,7 +5,10 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import User
+from .models import User, Company, Product
+
+admin.site.register(Product)
+admin.site.register(Company)
 
 
 class UserCreationForm(forms.ModelForm):
@@ -14,7 +17,10 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password1', 'password2', 'is_receiving_news', 'is_company')
+        fields = (
+            'first_name', 'last_name', 'email', 'phone_number', 'company_name',
+            'password1', 'password2', 'is_receiving_news', 'is_company'
+        )
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -36,7 +42,10 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password', 'is_active', 'is_admin')
+        fields = (
+            'first_name', 'last_name', 'email', 'phone_number',
+            'company_name', 'password', 'is_active', 'is_admin'
+        )
 
     def clean_password(self):
         return self.initial["password"]
@@ -49,14 +58,17 @@ class UserAdmin(BaseUserAdmin):
     list_display = ('email', 'is_admin')
     list_filter = ('is_admin',)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name')}),
+        (None, {'fields': ('email',)}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'phone_number', 'company_name')}),
         ('Permissions', {'fields': ('is_admin', 'is_active')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('first_name', 'last_name', 'email', 'password1', 'password2', 'is_receiving_news', 'is_company'),
+            'fields': (
+                'first_name', 'last_name', 'email', 'phone_number',
+                'company_name', 'password1', 'password2', 'is_receiving_news', 'is_company'
+            ),
         }),
     )
     search_fields = ('email',)

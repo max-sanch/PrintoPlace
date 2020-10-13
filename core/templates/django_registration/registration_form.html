@@ -12,73 +12,126 @@
 		</div>
 		<div class="d-flex justify-content-center">
 			<div class="d-inline-flex p-4 bd-highlight rounded border bg-white">
-				<form method="post" class="w-16rem">
+				<form method="post" class="">
 					{% csrf_token %}
-					<input type="hidden" name="next" value="{{ next }}">
+					<input type="hidden" name="next" value="">
 
-					{{ form|crispy }}
+					<div class="form-row">
+						<div id="div_id_first_name" class="form-group required col-md-6">
+							<label for="id_first_name" class=" requiredField">Имя<span class="asteriskField">*</span></label>
+							<div class="">
+								<input type="text" name="first_name" maxlength="32"
+											 class="textinput textInput form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+											 value="{% if form.first_name.value and not form.first_name.errors %}{{ form.first_name.value }}{% endif %}"
+											 required="" id="id_first_name">
+							</div>
+							{% for error in form.first_name.errors %}
+							<p class="mt-1 text-danger">{{ error|escape }}</p>
+							{% endfor %}
+						</div>
+
+
+						<div id="div_id_last_name" class="form-group required col-md-6">
+							<label for="id_last_name" class="requiredField">Фамилия<span class="asteriskField">*</span></label>
+							<div class="">
+								<input type="text" name="last_name" maxlength="32"
+											 class="textinput textInput form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+											 value="{% if form.last_name.value and not form.last_name.errors %}{{ form.last_name.value }}{% endif %}"
+											 required="" id="id_last_name">
+							</div>
+							{% for error in form.last_name.errors %}
+							<p class="mt-1 text-danger">{{ error|escape }}</p>
+							{% endfor %}
+						</div>
+					</div>
+
+
+					<div id="div_id_email" class="form-group required">
+						<label for="id_email" class=" requiredField">Email<span class="asteriskField">*</span></label>
+						<div class="">
+							<input type="email" name="email" maxlength="255" autofocus=""
+										 class="emailinput form-control {% if form.email.errors %}is-invalid{% endif %}"
+										 value="{% if form.email.value and not form.email.errors %}{{ form.email.value }}{% endif %}"
+										 required="" id="id_email">
+						</div>
+						{% for error in form.email.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+
+					<div id="div_id_phone_number" class="form-group">
+						<label for="id_phone_number">Номер телефона</label>
+						<div class="">
+							<input type="tel" name="phone_number" maxlength="12"
+										 class="textinput textInput form-control {% if form.phone_number.errors %}is-invalid{% endif %}"
+										 value="{% if form.phone_number.value and not form.phone_number.errors %}{{ form.phone_number.value }}{% endif %}"
+										 id="id_phone_number">
+						</div>
+						{% for error in form.phone_number.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+
+					<div id="div_id_company_name" class="form-group">
+						<label for="id_company_name">Название компании</label>
+						<div class="">
+							<input type="text" name="company_name" maxlength="64"
+										 class="textinput textInput form-control {% if form.company_name.errors %}is-invalid{% endif %}"
+										 value="{% if form.company_name.value and not form.company_name.errors %}{{ form.company_name.value }}{% endif %}"
+										 id="id_company_name">
+						</div>
+						{% for error in form.company_name.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+
+					<div id="div_id_password1" class="form-group required">
+						<label for="id_password1" class="requiredField">Пароль<span class="asteriskField">*</span></label>
+						<div class="">
+							<input type="password" name="password1" autocomplete="new-password"
+										 class="textinput textInput form-control {% if form.password1.errors %}is-invalid{% endif %}"
+										 required="" id="id_password1">
+						</div>
+						{% for error in form.password1.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+
+					<div id="div_id_password2" class="form-group required">
+						<label for="id_password2" class="requiredField">Подтверждение пароля<span class="asteriskField">*</span></label>
+						<div class="">
+							<input type="password" name="password2" autocomplete="new-password"
+										 class="textinput textInput form-control {% if form.password2.errors %}is-invalid{% endif %}"
+										 required="" id="id_password2">
+						</div>
+						{% for error in form.password2.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+
+					<div class="form-group">
+						<div id="div_id_is_receiving_news" class="form-check">
+							<input type="checkbox" name="is_receiving_news" class="checkboxinput form-check-input" id="id_is_receiving_news">
+							<label for="id_is_receiving_news" class="form-check-label">Я согласен на рассылку новостей</label>
+						</div>
+					</div>
+
+					<div class="form-group required">
+						<div class="form-check">
+							<input type="checkbox" class="checkboxinput form-check-input" required="">
+							<label class="form-check-label">Я согласен с Политикой конфидециальности<br>и Условиями сервиса<span class="asteriskField">*</span></label>
+						</div>
+					</div>
 
 					<div class="d-flex justify-content-center mt-4">
-						<button type="submit" class="btn btn-primary ml-auto">Зарегистрироваться</button>
+						<button type="submit" class="btn btn-primary">Зарегистрироваться</button>
 					</div>
 				</form>
-<!--				<form>-->
-<!--					<div class="form-row">-->
-<!--						<div class="form-group col-md-6">-->
-<!--							<label for="inputName1">Имя</label>-->
-<!--							<input type="text" class="form-control" id="inputName1">-->
-<!--						</div>-->
-<!--						<div class="form-group col-md-6">-->
-<!--							<label for="inputName2">Фамилия</label>-->
-<!--							<input type="text" class="form-control" id="inputName2">-->
-<!--						</div>-->
-<!--					</div>-->
-
-<!--					<div class="form-group">-->
-<!--						<label for="inputEmail">Email</label>-->
-<!--						<input type="Email" class="form-control" id="inputEmail">-->
-<!--					</div>-->
-
-<!--					<div class="form-group">-->
-<!--						<label for="inputPassword1">Пароль</label>-->
-<!--						<input type="password" class="form-control" id="inputPassword1">-->
-<!--					</div>-->
-
-<!--					<div class="form-group">-->
-<!--						<label for="inputPassword2">Подтвердите пароль</label>-->
-<!--						<input type="password" class="form-control" id="inputPassword2">-->
-<!--					</div>-->
-
-<!--					<div class="form-group">-->
-<!--						<div class="form-check">-->
-<!--							<input class="form-check-input" type="checkbox" id="gridCheck1">-->
-<!--							<label class="form-check-label" for="gridCheck1">-->
-<!--								Хочу предостовлять продукцию-->
-<!--							</label>-->
-<!--						</div>-->
-<!--					</div>-->
-
-<!--					<div class="form-group">-->
-<!--						<div class="form-check">-->
-<!--							<input class="form-check-input" type="checkbox" id="gridCheck2">-->
-<!--							<label class="form-check-label" for="gridCheck2">-->
-<!--								Я согласен на рассылку новостей-->
-<!--							</label>-->
-<!--						</div>-->
-<!--					</div>-->
-
-<!--					<div class="form-group">-->
-<!--						<div class="form-check">-->
-<!--							<input class="form-check-input" type="checkbox" id="gridCheck3">-->
-<!--							<label class="form-check-label" for="gridCheck3">-->
-<!--								Я согласен с Политикой конфидециальности и <br>Условиями сервиса, и мне исполнилось 16 лет.-->
-<!--							</label>-->
-<!--						</div>-->
-<!--					</div>-->
-<!--					<div class="d-flex justify-content-center">-->
-<!--						<a href="client_personal_account.html" type="submit" class="btn btn-primary">Зарегистрироваться</a>-->
-<!--					</div>-->
-<!--				</form>-->
 			</div>
 		</div>
 	</div>

@@ -1,7 +1,7 @@
 {% extends 'base_templates.html' %}
+{% load static %}
 
 {% block title %}PrintoPlace - Товары{% endblock %}
-
 {% block content %}
 <!-- Products list -->
 <div class="bg-light py-5">
@@ -31,292 +31,74 @@
 				<div class="bg-white rounded p-3">
 					<div class="nav row nav-pills px-3" role="tablist" aria-orientation="vertical">
 						<a class="nav-link col-12 active" id="all_tab" data-toggle="pill" href="#all" role="tab" aria-controls="all" aria-selected="true">Все</a>
-						<a class="nav-link col-12" id="prod_tab" data-toggle="pill" href="#cal" role="tab" aria-controls="cal" aria-selected="false">Продукция с переплётом</a>
-						<a class="nav-link col-12" id="fla_tab" data-toggle="pill" href="#ofc" role="tab" aria-controls="ofc" aria-selected="false">Флаеры, открытки и плакаты</a>
-						<a class="nav-link col-12" id="cal_tab" data-toggle="pill" href="#all" role="tab" aria-controls="all" aria-selected="false">Календари</a>
-						<a class="nav-link col-12" id="ofc_tab" data-toggle="pill" href="#cal" role="tab" aria-controls="cal" aria-selected="false">Офисное</a>
-						<a class="nav-link col-12" id="ads_tab" data-toggle="pill" href="#ofc" role="tab" aria-controls="ofc" aria-selected="false">Рекламная продукция</a>
-						<a class="nav-link col-12" id="gas_tab" data-toggle="pill" href="#ofc" role="tab" aria-controls="ofc" aria-selected="false">Для гастрономии и событий</a>
+						{% for category in category_list %}
+						<a class="nav-link col-12" id="category{{ category.0 }}_tab"
+							 data-toggle="pill" href="#category{{ category.0 }}"
+							 role="tab" aria-controls="category{{ category.0 }}"
+							 aria-selected="false">{{ category.1 }}</a>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
 
 			<div class="tab-content col-12 col-md-9 pt-3 pt-md-0">
 				<div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all_tab">
+					{% for one_prod in object_list %}
 					<div class="bg-white rounded p-3 mb-3">
 						<div class="row">
 							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-book"></i></a>
+								<a href="{% url 'one_product' %}">
+									<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg">
+								</a>
 							</div>
 							<div class="col-12 col-md-9 pl-3 pl-md-0">
 								<div class="text-secondary">
-									<h4>Спиральные переплеты с твердым переплетом</h4>
-									<p>Формат: A4/A5; Цвет: 4/4, 4/0, 1/1, 1/0; Бумага: матовый, глянец; Отделка: ламинирование фольгой матовое, блеск для ламинирования фольгой</p>
+									<h4>{{ one_prod.name }}</h4>
+									<p>{{ one_prod.description }}</p>
 								</div>
 								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">154p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
+									<h3 class="">{{ one_prod.price }}p</h3>
+									<a href="{% url 'one_product' %}" type="button" class="btn btn-primary pl-auto">Заказать</a>
 								</div>
 							</div>
 						</div>
 					</div>
-
+					{% empty %}
 					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-card"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Цветные основные визитки</h4>
-									<p>Формат: 85x55mm; Цвет: 4/4, 4/0; Бумага: натуральная;</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">25p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
+						<h3 class="text-center text-secondary my-4">Ничего не найдено!</h3>
 					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Настенный календарь</h4>
-									<p>Формат: A2/A3/A4/A5; Цвет: 4/0, 1/0; Бумага: матовый, глянец; Цвет спирали: чёрный, серебряный, белый</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">74p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-sticky-note"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Классические стикеры</h4>
-									<p>Формат: 72x50мм, 72x100мм; Цвет: 4/0; Бумага: офсетная бумага</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">32p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-id-badge"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Пластиковый бейджик</h4>
-									<p>Формат: 54x86мм; Цвет: 4/4; Материал: 0,6мм жесткий ПВХ белый, 0,6мм жесткий ПВХ серебро</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">84p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
+					{% endfor %}
 				</div>
 
-				<div class="tab-pane fade" id="cal" role="tabpanel" aria-labelledby="cal_tab">
+				{% for category in category_list %}
+				<div class="tab-pane fade" id="category{{ category.0 }}" role="tabpanel" aria-labelledby="category{{ category.0 }}_tab">
+					{% for one_prod in category.2 %}
 					<div class="bg-white rounded p-3 mb-3">
 						<div class="row">
 							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-book"></i></a>
+								<a href="{% url 'one_product' %}">
+									<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg">
+								</a>
 							</div>
 							<div class="col-12 col-md-9 pl-3 pl-md-0">
 								<div class="text-secondary">
-									<h4>Спиральные переплеты с твердым переплетом</h4>
-									<p>Формат: A4/A5; Цвет: 4/4, 4/0, 1/1, 1/0; Бумага: матовый, глянец; Отделка: ламинирование фольгой матовое, блеск для ламинирования фольгой</p>
+									<h4>{{ one_prod.name }}</h4>
+									<p>{{ one_prod.description }}</p>
 								</div>
 								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">154p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
+									<h3 class="">{{ one_prod.price }}р</h3>
+									<a href="{% url 'one_product' %}" type="button" class="btn btn-primary pl-auto">Заказать</a>
 								</div>
 							</div>
 						</div>
 					</div>
-
+					{% empty %}
 					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-card"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Цветные основные визитки</h4>
-									<p>Формат: 85x55mm; Цвет: 4/4, 4/0; Бумага: натуральная;</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">25p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
+						<h3 class="text-center text-secondary my-4">Ничего не найдено!</h3>
 					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Настенный календарь</h4>
-									<p>Формат: A2/A3/A4/A5; Цвет: 4/0, 1/0; Бумага: матовый, глянец; Цвет спирали: чёрный, серебряный, белый</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">74p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-sticky-note"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Классические стикеры</h4>
-									<p>Формат: 72x50мм, 72x100мм; Цвет: 4/0; Бумага: офсетная бумага</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">32p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-id-badge"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Пластиковый бейджик</h4>
-									<p>Формат: 54x86мм; Цвет: 4/4; Материал: 0,6мм жесткий ПВХ белый, 0,6мм жесткий ПВХ серебро</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">84p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
+					{% endfor %}
 				</div>
-
-				<div class="tab-pane fade" id="ofc" role="tabpanel" aria-labelledby="ofc_tab">
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-book"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Спиральные переплеты с твердым переплетом</h4>
-									<p>Формат: A4/A5; Цвет: 4/4, 4/0, 1/1, 1/0; Бумага: матовый, глянец; Отделка: ламинирование фольгой матовое, блеск для ламинирования фольгой</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">154p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-card"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Цветные основные визитки</h4>
-									<p>Формат: 85x55mm; Цвет: 4/4, 4/0; Бумага: натуральная;</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">25p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Настенный календарь</h4>
-									<p>Формат: A2/A3/A4/A5; Цвет: 4/0, 1/0; Бумага: матовый, глянец; Цвет спирали: чёрный, серебряный, белый</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">74p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-sticky-note"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Классические стикеры</h4>
-									<p>Формат: 72x50мм, 72x100мм; Цвет: 4/0; Бумага: офсетная бумага</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">32p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white rounded p-3 mb-3">
-						<div class="row">
-							<div class="col-12 col-md-3 text-center py-2">
-								<a href="one_product.html" class="text-secondary display-1"><i class="far fa-id-badge"></i></a>
-							</div>
-							<div class="col-12 col-md-9 pl-3 pl-md-0">
-								<div class="text-secondary">
-									<h4>Пластиковый бейджик</h4>
-									<p>Формат: 54x86мм; Цвет: 4/4; Материал: 0,6мм жесткий ПВХ белый, 0,6мм жесткий ПВХ серебро</p>
-								</div>
-								<div class="d-flex justify-content-between text-secondary">
-									<h3 class="">84p</h3>
-									<a href="one_product.html" type="button" class="btn btn-primary pl-auto">Заказать</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				{% endfor %}
 			</div>
 		</div>
 	</div>

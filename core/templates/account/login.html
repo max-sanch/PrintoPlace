@@ -1,5 +1,4 @@
 {% extends 'base_templates.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %}PrintoPlace - Вход{% endblock %}
 {% block content_class %}bg-light h-100-60{% endblock %}
@@ -14,15 +13,47 @@
 			<div class="d-inline-flex p-4 bd-highlight rounded border bg-white">
 				<form method="post" class="w-16rem">
 					{% csrf_token %}
-					<input type="hidden" name="next" value="{{ next }}">
+					<input type="hidden" name="next" value="">
 
-					{{ form|crispy }}
+					<div id="div_id_username" class="form-group">
+						<label for="id_username" class=" requiredField">Email<span class="asteriskField">*</span></label>
+						<div class="">
+							<input type="text" name="username" autofocus="" autocapitalize="none"
+										 autocomplete="username" maxlength="255"
+										 class="textinput textInput form-control {% if form.username.errors %}is-invalid{% endif %}"
+										 value="{% if form.username.value and not form.username.errors %}{{ form.username.value }}{% endif %}"
+										 required="" id="id_username">
+						</div>
+						{% for error in form.username.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+
+					<div id="div_id_password" class="form-group mb-0">
+						<label for="id_password" class=" requiredField">Пароль<span class="asteriskField">*</span></label>
+						<div class="">
+							<input type="password" name="password" autocomplete="current-password"
+										 class="textinput textInput form-control {% if form.password.errors %}is-invalid{% endif %}"
+										 required="" id="id_password">
+						</div>
+						{% for error in form.password.errors %}
+						<p class="mt-1 text-danger">{{ error|escape }}</p>
+						{% endfor %}
+					</div>
+
+					<a href="{% url 'password_reset' %}" class="text-secondary">Забыли пароль?</a>
+
+					{% for message in form.non_field_errors %}
+					<p class="my-2 text-danger">Email или пароль введены неправильно</p>
+					{% endfor %}
 
 					<div class="row px-3 mt-4">
-						<a href="{% url 'register'%}" class="btn btn-primary">Регистрация</a>
+						<a href="/account/register/" class="btn btn-primary">Регистрация</a>
 						<button type="submit" class="btn btn-primary ml-auto">Вход</button>
 					</div>
 				</form>
+
 			</div>
 		</div>
 	</div>

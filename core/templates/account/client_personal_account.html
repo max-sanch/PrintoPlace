@@ -1,181 +1,243 @@
 {% extends 'base_templates.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %}PrintoPlace - Личный кабинет{% endblock %}
 {% block content %}
 <!-- Personal Account -->
 <div>
 	<div class="container pt-5" style="min-height: 76vh;">
-		<h3 class="text-secondary ml-3">Личный кабинет</h3>
-		<ul class="nav nav-tabs pt-4" id="myTab" role="tablist">
-			<li class="nav-item" role="presentation">
-				<a class="nav-link active" id="data-account-tab" data-toggle="tab" href="#data-account" role="tab" aria-controls="data-account" aria-selected="true">Данные профиля</a>
-			</li>
-			<li class="nav-item" role="presentation">
-				<a class="nav-link" id="naw-password-tab" data-toggle="tab" href="#naw-password" role="tab" aria-controls="naw-password" aria-selected="false">Сменить пароль</a>
-			</li>
-			<li class="nav-item" role="presentation">
-				<a class="nav-link" id="my-orders-tab" data-toggle="tab" href="#my-orders" role="tab" aria-controls="my-orders" aria-selected="false">Мои заказы</a>
-			</li>
-		</ul>
-		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade py-4 px-0 px-sm-5 show active" id="data-account" role="tabpanel" aria-labelledby="data-account-tab">
-				<dl class="row">
-					<dt class="col-sm-3">Имя</dt>
-					<dd class="col-sm-9 mb-3">{{ request.user.first_name }}
-						<a class="pl-2" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-							Изменить
-						</a>
-						<div class="collapse" id="collapseExample">
-							<div class="pt-3">
-								<form>
-									<div class="form-group">
-										<input type="text" class="form-control" id="inputName1">
-									</div>
-								</form>
-							</div>
-						</div>
-					</dd>
-
-					<dt class="col-sm-3">Фамилия</dt>
-					<dd class="col-sm-9 mb-3">{{ request.user.last_name }}
-						<a class="pl-2" data-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="false" aria-controls="collapseExample2">
-							Изменить
-						</a>
-						<div class="collapse" id="collapseExample2">
-							<div class="pt-3">
-								<form>
-									<div class="form-group">
-										<input type="text" class="form-control" id="inputName2">
-									</div>
-								</form>
-							</div>
-						</div>
-					</dd>
-
-					<dt class="col-sm-3">Номер телефона</dt>
-					<dd class="col-sm-9 mb-3">не указана
-						<a class="pl-2" data-toggle="collapse" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
-							Добавить
-						</a>
-						<div class="collapse" id="collapseExample3">
-							<div class="pt-3">
-								<form>
-									<div class="form-group">
-										<input type="text" class="form-control" id="inputPhone">
-									</div>
-								</form>
-							</div>
-						</div>
-					</dd>
-
-					<dt class="col-sm-3">Название компании</dt>
-					<dd class="col-sm-9 mb-3">не указана
-						<a class="pl-2" data-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample4">
-							Добавить
-						</a>
-						<div class="collapse" id="collapseExample4">
-							<div class="pt-3">
-								<form>
-									<div class="form-group">
-										<input type="text" class="form-control" id="inputCompanyName">
-									</div>
-								</form>
-							</div>
-						</div>
-					</dd>
-
-					<dt class="col-sm-3">Электронная почта</dt>
-					<dd class="col-sm-9 mb-3">{{ request.user.email}}
-						<a class="pl-2" data-toggle="collapse" href="#collapseExample5" role="button" aria-expanded="false" aria-controls="collapseExample5">
-							Изменить
-						</a>
-						<div class="collapse" id="collapseExample5">
-							<div class="pt-3">
-								<form>
-									<div class="form-group">
-										<input type="Email" class="form-control" id="inputEmail">
-									</div>
-								</form>
-							</div>
-						</div>
-					</dd>
-				</dl>
-				<a href="client_personal_account.html" type="submit" class="btn btn-primary">Сохранить</a>
-			</div>
-
-			<div class="tab-pane fade py-4 px-0 px-sm-5" id="naw-password" role="tabpanel" aria-labelledby="naw-password-tab">
-				<form style="width: 16rem;">
-					<div class="form-group">
-						<label for="exampleInputPassword1">Старый пароль</label>
-						<input type="password" class="form-control" id="exampleInputPassword1">
-					</div>
-					<div class="form-group">
-						<label for="exampleInputPassword2">Новый пароль</label>
-						<input type="password" class="form-control" id="exampleInputPassword2">
-					</div>
-					<div class="form-group">
-						<label for="exampleInputPassword3">Подтвердите пароль</label>
-						<input type="password" class="form-control" id="exampleInputPassword3">
-					</div>
-					<a href="client_personal_account.html" type="submit" class="btn btn-primary">Сменить пароль</a>
-				</form>
-			</div>
-
-			<div class="tab-pane fade py-4 px-0 px-sm-5" id="my-orders" role="tabpanel" aria-labelledby="my-orders-tab">
-				<h5 class="text-secondary mb-3">09.09.2020</h5>
-
-				<div class="border rounded p-3 mb-3">
-					<div class="row">
-						<div class="col-12 col-md-3 text-center py-2">
-							<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-						</div>
-						<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
-							<h4>Настенный календарь</h4>
-							<p class="mb-1">Формат: A5; Цвет: 1/0; глянец; Цвет спирали: серебряный</p>
-							<p>Доставка: PDP</p>
-							<div class="row">
-								<h5 class="col-6">74p (1шт)</h5>
-								<h5 class="col-6 text-warning text-right">Ожидание</h5>
-							</div>
-						</div>
-					</div>
+		<div class="row mt-3">
+			<div class="col-12 col-md-3 mb-4">
+				<div class="nav row nav-pills px-3" role="tablist" aria-orientation="vertical">
+					<a class="nav-link col-12 active" id="prof_tab" data-toggle="pill" href="#prof" role="tab" aria-controls="prof" aria-selected="false">Мой профиль</a>
+					<a class="nav-link col-12" id="ord_tab" data-toggle="pill" href="#ord" role="tab" aria-controls="ord" aria-selected="true">Мои заказы</a>
+					{% if request.user.is_company %}
+					<a class="nav-link col-12" id="catl_tab" data-toggle="pill" href="#catl" role="tab" aria-controls="catl" aria-selected="false">Мой каталог</a>
+					{% endif %}
 				</div>
+			</div>
+			<div class="col-12 col-md-9">
+				<div class="tab-content">
+					<div class="tab-pane fade show active" id="prof" role="tabpanel" aria-labelledby="prof_tab">
+						<nav>
+							<div class="nav nav-tabs" id="nav-tab2" role="tablist">
+								<a class="nav-link active" id="dprf-tab" data-toggle="tab" href="#dprf" role="tab" aria-controls="dprf" aria-selected="true">Данные профиля</a>
+								<a href="{% url 'password_change' %}" class="nav-link">Сменить пароль</a>
+								{% if not request.user.is_company %}
+								<a href="{% url 'become_company' %}" class="nav-link">Стать исполнителем</a>
+								{% elif not company.is_verification and company.is_verified %}
+								<a href="{% url 'update_company' %}" class="nav-link">Данные компании</a>
+								{% endif %}
 
-				<div class="border rounded p-3 mb-3">
-					<div class="row">
-						<div class="col-12 col-md-3 text-center py-2">
-							<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-book"></i></a>
-						</div>
-						<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
-							<h4>Спиральные переплеты с твердым переплетом</h4>
-							<p class="mb-1">Формат: A4; Цвет: 4/0; Бумага: матовый; Цвет спирали: чёрный</p>
-							<p>Доставка: PDP</p>
-							<div class="row">
-								<h5 class="col-6">15400р (100шт)</h5>
-								<h5 class="col-6 text-warning text-right">Ожидание</h5>
+							</div>
+						</nav>
+
+						<div class="tab-content" id="nav-tabContent2">
+							<div class="tab-pane fade show active p-4" id="dprf" role="tabpanel" aria-labelledby="dprf_tab">
+								{% if request.user.is_company %}
+								<div class="mb-2">
+									{% if company.is_verification %}
+									<p class="text-success">Ваша компания успешно прошла верификацию! Теперь вы можете размешать товар.</p>
+									{% else %}
+										{% if company.is_verified %}
+										<p class="text-secondary">Сообщение от модератора: {{ company.moderator_message }}</p>
+										{% else %}
+										<p class="text-secondary">Заявка на верификацию отправлена, рассмотрение обычно занимет 24ч.</p>
+										{% endif %}
+									{% endif %}
+								</div>
+								{% endif %}
+								<form method="post" class="mw-22rem">
+									{% csrf_token %}
+									<div class="form-row">
+										<div id="div_id_first_name" class="form-group required col-md-6">
+											<label for="id_first_name" class=" requiredField">Имя</label>
+
+											<div class="">
+												<input type="text" name="first_name" maxlength="32"
+															 class="textinput textInput form-control"
+															 value="{{ request.user.first_name }}"
+															 required="" id="id_first_name">
+											</div>
+
+											{% for error in form.first_name.errors %}
+											<p class="mt-1 text-danger">{{ error|escape }}</p>
+											{% endfor %}
+										</div>
+
+										<div id="div_id_last_name" class="form-group required col-md-6">
+											<label for="id_last_name" class=" requiredField">Фамилия</label>
+
+											<div class="">
+												<input type="text" name="last_name" maxlength="32"
+															 class="textinput textInput form-control"
+															 value="{{ request.user.last_name }}"
+															 required="" id="id_last_name">
+											</div>
+
+											{% for error in form.last_name.errors %}
+											<p class="mt-1 text-danger">{{ error|escape }}</p>
+											{% endfor %}
+										</div>
+									</div>
+
+									<div id="div_id_phone_number" class="form-group">
+										<label for="id_phone_number">Номер телефона</label>
+										<div class="">
+											<input type="tel" name="phone_number" maxlength="12"
+														 class="textinput textInput form-control"
+														 value="{% if request.user.phone_number %}{{ request.user.phone_number }}{% endif %}"
+														 id="id_phone_number">
+										</div>
+
+										{% for error in form.phone_number.errors %}
+										<p class="mt-1 text-danger">{{ error|escape }}</p>
+										{% endfor %}
+									</div>
+
+									<div id="div_id_company_name" class="form-group">
+										<label for="id_company_name">Название компании</label>
+										<div class="">
+											<input type="text" name="company_name" maxlength="64"
+														 class="textinput textInput form-control"
+														 value="{% if request.user.company_name %}{{ request.user.company_name }}{% endif %}"
+														 id="id_company_name">
+										</div>
+
+										{% for error in form.company_name.errors %}
+										<p class="mt-1 text-danger">{{ error|escape }}</p>
+										{% endfor %}
+									</div>
+
+									{% if request.user.is_company %}
+									<div id="div_id_inn" class="form-group">
+										<label class="requiredField">ИНН</label>
+
+										<div class="">
+											<input type="text" name="inn" maxlength="11"
+														 class="textinput textInput form-control"
+														 value="{{ company.inn }}" id="id_inn">
+										</div>
+
+										{% for error in form.inn.errors %}
+										<p class="mt-1 text-danger">{{ error|escape }}</p>
+										{% endfor %}
+									</div>
+									{% endif %}
+
+									<div class="form-group">
+										<label class="requiredField">Email</label>
+										<div class="">
+											<input type="email" class="form-control" readonly value="{{ request.user.email }}">
+										</div>
+									</div>
+
+									<div class="mt-4">
+										<button type="submit" class="btn btn-primary">Сохранить</button>
+									</div>
+								</form>
 							</div>
 						</div>
 					</div>
-				</div>
 
-				<h5 class="text-secondary mb-3">11.08.2020</h5>
+					<div class="tab-pane fade" id="ord" role="tabpanel" aria-labelledby="ord_tab">
+						<nav>
+							<div class="nav nav-tabs" id="nav-tab1" role="tablist">
+								<a class="nav-link active" id="actv-tab" data-toggle="tab" href="#actv" role="tab" aria-controls="actv" aria-selected="true">Активные</a>
+								<a class="nav-link" id="copl-tab" data-toggle="tab" href="#copl" role="tab" aria-controls="copl" aria-selected="false">Завершённые</a>
+								<a class="nav-link" id="cncl-tab" data-toggle="tab" href="#cncl" role="tab" aria-controls="cncl" aria-selected="false">Отменённые</a>
+							</div>
+						</nav>
 
-				<div class="border rounded p-3 mb-3">
-					<div class="row">
-						<div class="col-12 col-md-3 text-center py-2">
-							<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-						</div>
-						<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
-							<h4>Настенный календарь</h4>
-							<p class="mb-1">Формат: A5; Цвет: 1/0; глянец; Цвет спирали: серебряный</p>
-							<p>Доставка: PDP</p>
-							<div class="row">
-								<h5 class="col-6">740p (10шт)</h5>
-								<h5 class="col-6 text-success text-right">Исполнено</h5>
+						<div class="tab-content" id="nav-tabContent1">
+							<div class="tab-pane fade show active p-4" id="actv" role="tabpanel" aria-labelledby="actv-tab">
+								<h5 class="text-secondary mb-3">09.09.2020</h5>
+
+								<div class="border rounded p-3 mb-3">
+									<div class="row">
+										<div class="col-12 col-md-3 text-center py-2">
+											<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
+										</div>
+										<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
+											<h4>Настенный календарь</h4>
+											<p class="mb-1">Формат: A5; Цвет: 1/0; глянец; Цвет спирали: серебряный</p>
+											<p>Доставка: PDP</p>
+											<div class="row">
+												<h5 class="col-6">74p (1шт)</h5>
+												<h5 class="col-6 text-warning text-right">Ожидание</h5>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="border rounded p-3 mb-3">
+									<div class="row">
+										<div class="col-12 col-md-3 text-center py-2">
+											<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-book"></i></a>
+										</div>
+										<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
+											<h4>Спиральные переплеты с твердым переплетом</h4>
+											<p class="mb-1">Формат: A4; Цвет: 4/0; Бумага: матовый; Цвет спирали: чёрный</p>
+											<p>Доставка: PDP</p>
+											<div class="row">
+												<h5 class="col-6">15400р (100шт)</h5>
+												<h5 class="col-6 text-warning text-right">Ожидание</h5>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade p-4" id="copl" role="tabpanel" aria-labelledby="copl-tab">
+								<h5 class="text-secondary mb-3">11.08.2020</h5>
+
+								<div class="border rounded p-3 mb-3">
+									<div class="row">
+										<div class="col-12 col-md-3 text-center py-2">
+											<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
+										</div>
+										<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
+											<h4>Настенный календарь</h4>
+											<p class="mb-1">Формат: A5; Цвет: 1/0; глянец; Цвет спирали: серебряный</p>
+											<p>Доставка: PDP</p>
+											<div class="row">
+												<h5 class="col-6">740p (10шт)</h5>
+												<h5 class="col-6 text-success text-right">Исполнено</h5>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade p-4" id="cncl" role="tabpanel" aria-labelledby="cncl-tab">
+								<h5 class="text-secondary mb-3">Пусто</h5>
 							</div>
 						</div>
 					</div>
+
+					{% if request.user.is_company %}
+					<div class="tab-pane fade" id="catl" role="tabpanel" aria-labelledby="catl_tab">
+						{% if company.is_verification %}
+						<nav>
+							<div class="nav nav-tabs" id="nav-tab3" role="tablist">
+								<a class="nav-link active" id="act-tab" data-toggle="tab" href="#act" role="tab" aria-controls="act" aria-selected="true">Активные</a>
+								<a class="nav-link" id="off-tab" data-toggle="tab" href="#off" role="tab" aria-controls="off" aria-selected="false">Не активные</a>
+							</div>
+						</nav>
+
+						<div class="tab-content" id="nav-tabContent3">
+							<div class="tab-pane fade show active p-4" id="act" role="tabpanel" aria-labelledby="act">
+								...
+							</div>
+
+							<div class="tab-pane fade p-4" id="off" role="tabpanel" aria-labelledby="off-tab">
+								...
+							</div>
+						</div>
+						{% else %}
+						<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
+						{% endif %}
+					</div>
+					{% endif %}
 				</div>
 			</div>
 		</div>

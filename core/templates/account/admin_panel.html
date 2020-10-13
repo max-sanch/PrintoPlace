@@ -1,0 +1,73 @@
+{% extends 'base_templates.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}PrintoPlace - Панель администратора{% endblock %}
+{% block content %}
+<!-- Admin panel -->
+<div>
+	<div class="container pt-5" style="min-height: 76vh;">
+		<h3 class="text-secondary ml-3">Панель администратора</h3>
+		<div class="p-5">
+			{% for company in company_list %}
+			<div class="mb-3">
+				<a class="text-secondary" data-toggle="collapse" href="#collapseExample{{ company.user.id }}" role="button" aria-expanded="false" aria-controls="collapseExample{{ company.user.id }}">
+					{% if company.user.company_name %}{{ company.user.company_name }}{% else %}Без названия{% endif %} <span class="badge badge-pill badge-secondary pl-2">05.09.2020 14:30</span>
+				</a>
+				<div class="collapse" id="collapseExample{{ company.user.id }}">
+					<div class="p-3">
+						<dl class="row">
+							<dt class="col-sm-3">ИНН</dt>
+							<dd class="col-sm-9">{{ company.inn }}</dd>
+
+							<dt class="col-sm-3">ОГРН</dt>
+							<dd class="col-sm-9">8797878</dd>
+
+							<dt class="col-sm-3">Адрес</dt>
+							<dd class="col-sm-9">
+								{% for address in company.addresses %}
+								<p class="m-0">{{ address }}</p>
+								{% endfor %}
+							</dd>
+
+							<dt class="col-sm-3">Телефон</dt>
+							<dd class="col-sm-9">{{ company.user.phone_number }}</dd>
+
+							<dt class="col-sm-3">Email</dt>
+							<dd class="col-sm-9">{{ company.user.email }}</dd>
+
+							<dt class="col-sm-3">Документы</dt>
+							<dd class="col-sm-9"><a href="https://drive.google.com/file/d/hfdS16DmbpWHVtLQXqpLg_0hh6ndZP2ko/view">Ссылка</a></dd>
+						</dl>
+						<div class="mt-4">
+							<form method="post">
+								{% csrf_token %}
+								<input type="hidden" name="next" value="">
+								<input type="hidden" name="company_user" value="{{ company.user.email }}">
+
+								<div id="div_id_moderator_message" class="form-group">
+									<label for="id_moderator_message" class="">Сообщение для пользователя</label>
+									<div class="">
+										<input type="text" name="moderator_message" class="textinput textInput form-control" id="id_moderator_message">
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div id="div_id_is_verification" class="form-check">
+										<input type="checkbox" name="is_verification" class="checkboxinput form-check-input" id="id_is_verification">
+										<label for="id_is_verification" class="form-check-label">Верифицировать пользователя</label>
+									</div>
+								</div>
+
+								<button type="submit" class="btn btn-primary">Отправить</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% empty %}
+			<h3 class="text-center text-secondary my-4">Заявок нету!</h3>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}

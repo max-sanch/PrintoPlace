@@ -1,7 +1,7 @@
 {% extends 'base_templates.html' %}
+{% load static %}
 
 {% block title %}PrintoPlace - Главная страница{% endblock %}
-
 {% block content %}
 <!-- Carousel -->
 <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
@@ -68,68 +68,28 @@
 	<div class="container">
 		<h3 class="text-secondary mb-5">Популярные товары</h3>
 		<div class="row text-center">
+			{% for one_prod in products %}
 			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-address-book"></i></a>
-				<p><small>Спиральные переплеты с твердым переплетом</small></p>
+				<a href="{% url 'one_product' %}" class="text-secondary display-3 px-auto">
+					<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg" width="130px">
+				</a>
+				<p class="text-secondary"><small>{{ one_prod.name }}</small></p>
 			</div>
+			{% empty %}
+			<h3 class="text-center text-secondary my-4">Ничего не найдено!</h3>
+			{% endfor %}
 
+			{% for one_prod in products %}
 			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-address-card"></i></a>
-				<p><small>Цветные основные визитки</small></p>
+				<a href="{% url 'one_product' %}" class="text-secondary display-3 px-auto">
+					<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg" width="130px">
+				</a>
+				<p class="text-secondary"><small>{{ one_prod.name }}</small></p>
 			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-calendar-alt"></i></a>
-				<p><small>Настенный календарь</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-sticky-note"></i></a>
-				<p><small>Классические стикеры</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-id-badge"></i></a>
-				<p><small>Пластиковый бейджик</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-address-book"></i></a>
-				<p><small>Спиральные переплеты с твердым переплетом</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-address-card"></i></a>
-				<p><small>Цветные основные визитки</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-calendar-alt"></i></a>
-				<p><small>Настенный календарь</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-address-book"></i></a>
-				<p><small>Спиральные переплеты с твердым переплетом</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-address-card"></i></a>
-				<p><small>Цветные основные визитки</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-calendar-alt"></i></a>
-				<p><small>Настенный календарь</small></p>
-			</div>
-
-			<div class="col-4 col-md-2">
-				<a href="one_product.html" class="text-secondary display-3 px-auto"><i class="far fa-sticky-note"></i></a>
-				<p><small>Классические стикеры</small></p>
-			</div>
+			{% endfor %}
 		</div>
 		<div class="d-flex justify-content-center justify-content-md-end">
-			<a href="products.html" class="btn btn-primary mt-3">Больше товара</a>
+			<a href="{% url 'products' %}" class="btn btn-primary mt-3">Больше товара</a>
 		</div>
 	</div>
 </div>
