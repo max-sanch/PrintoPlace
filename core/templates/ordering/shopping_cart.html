@@ -1,0 +1,115 @@
+{% extends 'base_templates.html' %}
+{% load static %}
+
+{% block title %}PrintoPlace - Корзина{% endblock %}
+{% block content %}
+<!-- List of products added to cart -->
+<div class="py-5">
+	<div class="container">
+		<h3 class="text-secondary pb-4">Корзина</h3>
+		{% if request.user.is_authenticated %}
+		<div class="row">
+			<div class="col-12 col-md-9 pl-3 pl-md-0">
+				{% for one_prod in products_cart %}
+				{% url 'one_product' one_prod.product.slug as product_path %}
+				<div class="border rounded p-3 mb-3">
+					<div class="row">
+						<div class="col-12 col-lg-3">
+							<img src="{{ one_prod.design.url }}" class="rounded d-block mx-auto" style="max-width: 160px; max-height: 160px;">
+						</div>
+
+						<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+							<div class="text-secondary">
+								<div class="d-flex justify-content-between text-secondary">
+									<h4>{{ one_prod.product.name }}</h4>
+									<a href="#" class="text-secondary"><i class="far fa-edit"></i> Изменить</a>
+								</div>
+								<p class="text-truncate" style="max-width: 400px;"
+									 title="{% for char in one_prod.characteristics.items %}{{ char.0 }}: {{ char.1 }}; {% endfor %}">
+									{% for char in one_prod.characteristics.items %}{{ char.0 }}: {{ char.1 }}; {% endfor %}
+								</p>
+							</div>
+
+							<div class="form-row">
+								<div class="col-12 col-lg-6 mb-3">
+									<input type="text" class="form-control" readonly placeholder="Количество" value="{{ one_prod.count }}">
+								</div>
+							</div>
+
+							<div class="d-flex justify-content-between text-secondary">
+								<h5>{{ one_prod.product.price }}p (1 шт)</h5>
+								<a href="{% url 'delete_product_in_cart' one_prod.id %}" class="text-danger h5">
+									<i class="far fa-trash-alt"></i>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% empty %}
+				<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+				{% endfor %}
+			</div>
+
+			<div class="text-secondary col-12 col-md-3 pr-3 pr-md-0">
+				<div class="bg-white mb-2 pt-4">
+					<div class="row">
+						<h5 class="col-6">Итого:</h5>
+						<h5 class="col-6 text-right">1000 - 1500р</h5>
+					</div>
+
+					<div class="mt-2">
+						<p class="text-black-50"><small><em>*Конечкая стоимость зависит от выборанных на следующем этапе исполнителей(я)</em></small></p>
+					</div>
+				</div>
+				<form method="post">
+					{% csrf_token %}
+					<input type="hidden" name="next" value="">
+
+					{% if request.user.is_company %}
+					<p class="text-danger">Исполнители не могут заказывать</p>
+					{% else %}
+					<button type="submit" class="btn btn-primary w-100">Оформить заказ</button>
+					{% endif %}
+
+					{% for error in form.errors.values %}
+						<p class="text-danger text-center mt-3">{{ error }}</p>
+					{% endfor %}
+				</form>
+			</div>
+		</div>
+
+		{% else %}
+		<div class="d-flex flex-column justify-content-center my-5">
+			<h4 class="text-center text-secondary mb-3">Необходимо авторизоваться!</h4>
+			<a href="{% url 'login' %}" class="btn btn-outline-my mx-auto">Войти</a>
+		</div>
+		{% endif %}
+	</div>
+</div>
+
+<!-- Shipping and payment -->
+<div class="bg-light">
+	<div class="container py-4">
+		<h3 class="text-secondary mb-4">Добавить новый продукт</h3>
+		<div class="row text-center">
+			{% for one_prod in products %}
+			{% url 'one_product' one_prod.slug as product_path %}
+			<div class="col-6 col-md-3 col-lg-2">
+				<a href="{{ product_path }}" class="text-secondary display-3 px-auto">
+					<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg" width="130px" style="filter: brightness(.95); ">
+				</a>
+				<h5 class="text-secondary"><small>{{ one_prod.name }}</small></h5>
+			</div>
+			{% empty %}
+			<h3 class="text-center text-secondary my-4">Ничего не найдено!</h3>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+{% include 'includes/contact_info.html' %}
+
+{% include 'includes/delivery_payment.html' %}
+
+{% include 'includes/footer.html' %}
+{% endblock %}

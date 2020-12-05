@@ -1,0 +1,102 @@
+{% extends 'base_templates.html' %}
+
+{% block title %}PrintoPlace - Оформление заказа{% endblock %}
+{% block content_class %}bg-white h-100-60{% endblock %}
+{% block content %}
+<!-- Login form -->
+<div class="py-5">
+	<div class="container">
+		<h3 class="text-secondary pb-4">Распределение продукции</h3>
+
+		<form method="post" class="">
+			{% csrf_token %}
+			<input type="hidden" name="next" value="">
+
+			<div style="min-height: 70vh;">
+				{% for one_prod in products %}
+				{% url 'one_product' one_prod.product.slug as product_path %}
+				<div class="border rounded p-3 mb-3">
+					<div class="row">
+						<div class="col-12 col-lg-2">
+							<img src="{{ one_prod.design_url }}" class="rounded d-block mx-auto" style="max-width: 160px; max-height: 160px;">
+						</div>
+
+						<div class="col-12 col-lg-10 pl-3 pl-lg-0">
+							<div class="text-secondary">
+								<div class="d-flex justify-content-between text-secondary">
+									<h4>{{ one_prod.product.name }}</h4>
+								</div>
+
+								<p class="text-truncate" style="max-width: 800px;"
+									 title="{% for char in one_prod.characteristics.items %}{{ char.0 }}: {{ char.1 }}; {% endfor %}">
+									{% for char in one_prod.characteristics.items %}{{ char.0 }}: {{ char.1 }}; {% endfor %}
+								</p>
+								<div id="address-list-{{ one_prod.id }}">
+									<div class="row">
+										<div class="col-3">
+											<div class="form-group">
+												<label>Количество</label>
+												<input type="number" class="form-control" name="count-{{ one_prod.id }}" min="1" max="{{ one_prod.total_count }}" value="{{ one_prod.total_count }}">
+											</div>
+										</div>
+
+										<div class="col-7">
+											<div class="form-group">
+												<label class="requiredField">Адрес доставки</label>
+												<select class="form-control" name="address-{{ one_prod.id }}" required="">
+													{% for address in address_list %}
+													<option value="{{ address.0 }}">{{ address.1 }}</option>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-3">
+										<p class="text-secondary mb-0">Всего: {{ one_prod.total_count }}</p>
+									</div>
+									<div class="col-7">
+										<button type="button" class="btn btn-link text-primary p-0" onclick="add_address_prod({{ one_prod.id }})">+ добавить адрес</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% empty %}
+				<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+				{% endfor %}
+			</div>
+
+
+			<div class="row px-3 mt-4">
+				<a href="{% url 'ordering' %}" class="btn btn-outline-my"><i class="fas fa-angle-left"></i> Оформлеине заказа</a>
+				<button type="submit" class="btn btn-outline-my ml-auto">Далее <i class="fas fa-angle-right"></i></button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Template address form -->
+{% for one_prod in products %}
+<div id="template-address-{{ one_prod.id }}" class="d-none">
+	<div class="col-3">
+		<div class="form-group">
+			<input type="number" class="form-control" name="count-{{ one_prod.id }}" min="1">
+		</div>
+	</div>
+
+	<div class="col-7">
+		<div class="form-group">
+			<select class="form-control" name="address-{{ one_prod.id }}" required="">
+				{% for address in address_list %}
+				<option value="{{ address.0 }}">{{ address.1 }}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
+</div>
+{% endfor %}
+{% endblock %}

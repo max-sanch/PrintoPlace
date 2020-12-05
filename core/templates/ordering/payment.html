@@ -1,0 +1,30 @@
+{% extends 'base_templates.html' %}
+
+{% block title %}PrintoPlace - Оплата{% endblock %}
+{% block content_class %}h-100-60{% endblock %}
+{% block content %}
+<!-- Login form -->
+<div class="py-5">
+	<div class="container">
+		<div class="mb-5 ml-3">
+			<h2 class="text-secondary">Оплата</h2>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<p class="text-secondary">Для отклика на предложение необходимо заплатить комиссию 50 руб</p>
+				<p class="text-secondary">Вас перекинет на страницу оплаты Яндекс.Касса</p>
+			</div>
+			<div class="col-6">
+				<form method="post">
+					{% csrf_token %}
+					<input type="hidden" name="next" value="">
+					<div class="d-flex justify-content-between mt-5">
+						<h5 class="text-primary">К оплате: 50 руб</h5>
+						<button type="submit" class="btn btn-primary d-block ml-auto">Оплатить</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

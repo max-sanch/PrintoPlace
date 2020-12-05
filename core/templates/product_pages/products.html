@@ -7,24 +7,26 @@
 <div class="bg-light py-5">
 	<div class="container">
 		<h3 class="text-secondary pb-4">Товары</h3>
-		<div class="bg-white rounded d-flex flex-column flex-md-row justify-content-center justify-content-md-between p-3">
-			<div class="pt-1">
-				<p class="d-inline text-secondary pr-0 pr-md-1">Сортировать</p>
-				<select class="d-inline form-control form-control-sm w-14rem mb-2 mb-md-0" id="exampleFormControlSelect1">
-					<option>По возрастанию цены</option>
-					<option>По убыванию цены</option>
-					<option>По популярности</option>
-					<option>По наименованию</option>
-				</select>
-			</div>
+		<form method="post">
+			{% csrf_token %}
+			<input type="hidden" name="next" value="">
+			<div class="bg-white rounded d-flex flex-column flex-md-row justify-content-center justify-content-md-between p-3">
+				<div class="pt-1">
+					<p class="d-inline text-secondary pr-0 pr-md-1">Сортировать</p>
+					<select class="d-inline form-control form-control-sm w-14rem mb-2 mb-md-0" name="sort">
+						<option value="price_up" {% if sort == 'price_up' %}selected{% endif %}>По возрастанию цены</option>
+						<option value="price_down" {% if sort == 'price_down' %}selected{% endif %}>По убыванию цены</option>
+						<option value="popularity" {% if sort == 'popularity' %}selected{% endif %}>По популярности</option>
+						<option value="name" {% if sort == 'name' %}selected{% endif %}>По наименованию</option>
+					</select>
+				</div>
 
-			<div class="input-group w-16rem">
-				<input type="text" class="form-control" placeholder="Поиск по товарам" aria-label="Поиск по товарам" aria-describedby="button-addon2">
-				<div class="input-group-append">
-					<button class="btn btn-outline-my" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
+				<div class="form-group d-flex m-0">
+					<input type="text" class="form-control w-16rem mr-2" placeholder="Поиск по товарам" name="search" value="{% if search != None %}{{ search }}{% endif %}">
+					<button class="btn btn-outline-my" type="submit">Применить</button>
 				</div>
 			</div>
-		</div>
+		</form>
 
 		<div class="row mt-3">
 			<div class="col-12 col-md-3 pr-3 pr-md-0">
@@ -43,11 +45,12 @@
 
 			<div class="tab-content col-12 col-md-9 pt-3 pt-md-0">
 				<div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all_tab">
-					{% for one_prod in object_list %}
+					{% for one_prod in products %}
+					{% url 'one_product' one_prod.slug as product_path %}
 					<div class="bg-white rounded p-3 mb-3">
 						<div class="row">
 							<div class="col-12 col-md-3 text-center py-2">
-								<a href="{% url 'one_product' %}">
+								<a href="{{ product_path }}">
 									<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg">
 								</a>
 							</div>
@@ -58,7 +61,7 @@
 								</div>
 								<div class="d-flex justify-content-between text-secondary">
 									<h3 class="">{{ one_prod.price }}p</h3>
-									<a href="{% url 'one_product' %}" type="button" class="btn btn-primary pl-auto">Заказать</a>
+									<a href="{{ product_path }}" type="button" class="btn btn-primary pl-auto">Заказать</a>
 								</div>
 							</div>
 						</div>
@@ -73,10 +76,11 @@
 				{% for category in category_list %}
 				<div class="tab-pane fade" id="category{{ category.0 }}" role="tabpanel" aria-labelledby="category{{ category.0 }}_tab">
 					{% for one_prod in category.2 %}
+					{% url 'one_product' one_prod.slug as product_path %}
 					<div class="bg-white rounded p-3 mb-3">
 						<div class="row">
 							<div class="col-12 col-md-3 text-center py-2">
-								<a href="{% url 'one_product' %}">
+								<a href="{{ product_path }}">
 									<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg">
 								</a>
 							</div>
@@ -87,7 +91,7 @@
 								</div>
 								<div class="d-flex justify-content-between text-secondary">
 									<h3 class="">{{ one_prod.price }}р</h3>
-									<a href="{% url 'one_product' %}" type="button" class="btn btn-primary pl-auto">Заказать</a>
+									<a href="{{ product_path }}" type="button" class="btn btn-primary pl-auto">Заказать</a>
 								</div>
 							</div>
 						</div>
@@ -104,163 +108,9 @@
 	</div>
 </div>
 
-<!-- Contact Information -->
-<div class="bg-primary">
-	<div class="container pb-4">
-		<div class="row">
-			<div class="col-md-8 mt-4">
-				<div class="d-flex flex-column bd-highlight">
-					<div class="bd-highlight"><h3 class="text-white">Любые вопросы?</h3></div>
-					<div class="bd-highlight"><p class="text-white mb-0">Проконсультируем в личной беседе.</p></div>
-				</div>
-			</div>
-			<div class="col-md-4 mt-4">
-				<div class="d-flex flex-column bd-highlight">
-					<div class="bd-highlight ml-auto"><h3 class="text-white"><i class="fas fa-phone"></i> +7 (999) 999-9999</h3></div>
-					<div class="bd-highlight ml-auto"><p class="text-white mb-0"><i class="fas fa-at"></i> Email: service@viaprinto.de</p></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+{% include 'includes/contact_info.html' %}
 
-<!-- Shipping and payment -->
-<div class="bg-light">
-	<div class="container pb-5">
-		<div class="row">
-			<div class="col-md-3 col-sm-12 mt-5 px-4">
-				<h3 class="text-secondary">Доставка</h3>
-				<div class="row">
+{% include 'includes/delivery_payment.html' %}
 
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-6 col-md-12 pt-0 pt-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-2 py-3">
-								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-				</div>
-			</div>
-			<div class="col-md-6 col-sm-12 mt-5 px-4">
-				<h3 class="text-secondary">Оплата</h3>
-				<div class="row">
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-6 pt-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-2 py-3">
-								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-6 pt-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-2 py-3">
-								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-				</div>
-			</div>
-			<div class="col-md-3 col-sm-12 mt-5 px-4">
-				<h3 class="text-secondary">Соц. сети</h3>
-				<div class="row">
-
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pt-0 pt-md-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pt-0 pt-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Footer -->
-<div>
-	<div class="container pb-2 pt-2">
-		<div class="d-flex justify-content-between">
-			<div class="d-inline-flex p-2 bd-highlight"><p class="text-secondary mb-0">Copyright © AirPrint 2020</p></div>
-			<div class="d-inline-flex p-2 bd-highlight"><a href="privacy_policy.html" class="text-secondary">Соглашения и договор</a></div>
-		</div>
-	</div>
-</div>
+{% include 'includes/footer.html' %}
 {% endblock %}

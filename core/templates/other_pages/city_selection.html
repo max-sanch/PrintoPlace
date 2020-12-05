@@ -1,0 +1,26 @@
+{% extends 'base_templates.html' %}
+{% load static %}
+
+{% block title %}PrintoPlace - Выбор города{% endblock %}
+{% block content_class %}h-100-60{% endblock %}
+{% block content %}
+<!-- Help list -->
+<div class="py-5">
+	<div class="container">
+		<h3 class="text-secondary mb-5 ml-4">Выбор города</h3>
+		<div class="container">
+			<input class="form-control" id="anythingSearch" type="text" placeholder="Поиск">
+			<form method="post">
+				{% csrf_token %}
+				<input type="hidden" name="next" value="">
+				<div class="mt-3" id="myDIV">
+					<button type="submit" name="city" value="msk" class="btn btn-outline-my">Москва</button>
+					<button type="submit" name="city" value="sch" class="btn btn-outline-my">Сочи</button>
+					<button type="submit" name="city" value="irk" class="btn btn-outline-my">Иркутск</button>
+					<button type="submit" name="city" value="nov" class="btn btn-outline-my">Новосибирск</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

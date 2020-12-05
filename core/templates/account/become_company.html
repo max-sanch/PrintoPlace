@@ -16,10 +16,63 @@
 					{% csrf_token %}
 					<input type="hidden" name="next" value="{{ next }}">
 
-					{{ form|crispy }}
+					<div id="div_id_inn" class="form-group">
+						<label for="id_inn" class=" requiredField">
+							ИНН<span class="asteriskField">*</span>
+						</label>
+						<div>
+							<input type="number" name="inn" min="0" maxlength="12" class="textinput textInput form-control inn-input" required="" id="id_inn"
+										 style="
+										 -webkit-inner-spin-button {
+										 		-webkit-appearance: none;
+										 }">
+						</div>
+						<button class="btn btn-outline-my btn-sm mt-2" onclick="search_inn()" type="button">Поиск</button>
+					</div>
+
+					<div id="div_id_company_name" class="form-group">
+						<label for="id_company_name">
+							Название компании<span class="asteriskField">*</span>
+						</label>
+						<div class="">
+							<input type="text" name="company_name" maxlength="64"
+										 class="textinput textInput form-control"
+										 id="id_company_name">
+						</div>
+					</div>
+
+					<div id="div_id_phone_number" class="form-group">
+						<label for="id_phone_number">
+							Номер телефона<span class="asteriskField">*</span>
+						</label>
+						<div class="">
+							<input type="tel" name="phone_number" maxlength="12"
+										 class="textinput textInput form-control"
+										 id="id_phone_number">
+						</div>
+					</div>
+
+					<div id="div_id_addresses" class="form-group">
+						<label for="id_addresses" class=" requiredField">
+							Список адресов<span class="asteriskField">*</span>
+						</label>
+						<div>
+							<input type="text" name="addresses" class="textinput textInput form-control" required="" id="id_addresses">
+						</div>
+					</div>
+
+					<div id="div_id_company_files" class="form-group">
+						<label for="id_company_files">
+                Документы<span class="asteriskField">*</span>
+            </label>
+						<div>
+							<input type="file" name="company_files" class="clearablefileinput form-control-file" id="id_company_files">
+						</div>
+						<small class="form-text text-muted">Прикрепите юридические документы для верификации аккаунта.</small>
+					</div>
 
 					<div class="row px-3 mt-4">
-						<a href="{% url 'personal_account' %}" class="btn btn-outline-my">Назад</a>
+						<a href="/personal_account/" class="btn btn-outline-my">Назад</a>
 						<button type="submit" class="btn btn-primary ml-auto">Отправить</button>
 					</div>
 				</form>

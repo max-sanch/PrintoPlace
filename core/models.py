@@ -1,7 +1,6 @@
-from django.conf import settings
 from django.db import models
 from django.core.mail import send_mail
-from django.contrib.postgres.fields import HStoreField, ArrayField
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -48,6 +47,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+	"""---"""
 	email = models.EmailField(
 		verbose_name='Email',
 		max_length=255,
@@ -71,6 +71,13 @@ class User(AbstractBaseUser):
 		max_length=64,
 		blank=True
 	)
+	addresses = models.JSONField()
+	order_id = models.IntegerField(blank=True, null=True)
+	notification = models.CharField(
+		verbose_name='Уведомление',
+		max_length=256,
+		blank=True
+	)
 	is_receiving_news = models.BooleanField(default=False)
 	is_company = models.BooleanField(default=False)
 	is_active = models.BooleanField(default=False)
@@ -84,6 +91,9 @@ class User(AbstractBaseUser):
 	def email_user(self, subject, message, from_email=None, **kwargs):
 		"""Send an email to this user."""
 		send_mail(subject, message, from_email, [self.email], **kwargs)
+
+	def full_name(self):
+		return '%s %s' % (self.last_name, self.first_name)
 
 	def __str__(self):
 		return self.first_name
@@ -100,7 +110,8 @@ class User(AbstractBaseUser):
 
 
 class Company(models.Model):
-	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+	"""Пользователь-исполнитель — данные о компании предоставляемой продукт"""
+	user = models.OneToOneField('User', on_delete=models.CASCADE)
 	addresses = ArrayField(
 		models.CharField(max_length=128),
 		size=None,
@@ -121,6 +132,11 @@ class Company(models.Model):
 		max_length=256,
 		blank=True
 	)
+	notification = models.CharField(
+		verbose_name='Уведомление',
+		max_length=256,
+		blank=True
+	)
 	is_verification = models.BooleanField(default=False)
 	is_verified = models.BooleanField(default=False)
 
@@ -128,6 +144,7 @@ class Company(models.Model):
 
 
 class Product(models.Model):
+	"""Базовое описание продукта предоставляемого сайтом"""
 	slug = models.SlugField(
 		max_length=32,
 		unique=True
@@ -153,8 +170,12 @@ class Product(models.Model):
 
 	objects = models.Manager()
 
+	def __str__(self):
+		return self.name
+
 
 class ProductCompany(models.Model):
+	"""Продукт предоставляемый пользователем-исполнителем(компанией) на основе базового продукта"""
 	company = models.ForeignKey(
 		'Company',
 		verbose_name='Компания',
@@ -165,75 +186,130 @@ class ProductCompany(models.Model):
 		verbose_name='Продукт',
 		on_delete=models.CASCADE
 	)
-	characteristics = HStoreField(verbose_name='Характеристики')
+	characteristics = models.JSONField(verbose_name='Характеристики')
+
+	objects = models.Manager()
 
 
 class ShoppingCart(models.Model):
+	"""Продукты находящиеся в корзине конкретного пользователя"""
 	user = models.ForeignKey(
 		'User',
 		on_delete=models.CASCADE
 	)
-	product_company = models.ForeignKey(
-		'ProductCompany',
+	product = models.ForeignKey(
+		'Product',
 		on_delete=models.CASCADE
 	)
-	characteristics = HStoreField()
+	characteristics = models.JSONField()
 	design = models.FileField(
 		upload_to='design_product/',
 		max_length=50
 	)
 	count = models.IntegerField()
+
+	objects = models.Manager()
 
 
 class ProductCharacteristics(models.Model):
-	format = ArrayField(models.CharField(max_length=32))
-	color = ArrayField(models.CharField(max_length=32))
-	material = ArrayField(models.CharField(max_length=32))
+	"""Список характеристик и их значений для конкретного продукта"""
+	product = models.OneToOneField('Product', verbose_name='Продукт', on_delete=models.CASCADE)
+
+	format = models.JSONField(verbose_name='Формат', null=True)
+	color = models.JSONField(verbose_name='Цвет', null=True)
+	material = models.JSONField(verbose_name='Материал', null=True)
+	rounding = models.JSONField(verbose_name='Скругление', null=True)
+	adhesive_side = models.JSONField(verbose_name='Клейкая сторона', null=True)
+	sheets_count = models.JSONField(verbose_name='Количество листов', null=True)
+	sheets_arrangement = models.JSONField(verbose_name='Расположение листов', null=True)
+	protective_film = models.JSONField(verbose_name='Защитная плёнка', null=True)
+	spiral_color = models.JSONField(verbose_name='Цвет спирали', null=True)
+	finishing = models.JSONField(verbose_name='Отделка', null=True)
+	paper = models.JSONField(verbose_name='Бумага', null=True)
+
+	objects = models.Manager
+
+	def __str__(self):
+		return self.product.__str__()
 
 
-class Orders(models.Model):
-	user = models.ForeignKey(
-		'User',
-		on_delete=models.CASCADE
+class Order(models.Model):
+	"""Базовая модель заказа"""
+	user = models.ForeignKey('User', on_delete=models.CASCADE)
+	price = models.IntegerField(verbose_name='Общая стоимость')
+
+	objects = models.Manager
+
+
+class OrderDetail(models.Model):
+	"""Детальное описание заказа после его оформления"""
+	order = models.OneToOneField('Order', on_delete=models.CASCADE)
+	address_and_deadline = models.JSONField(verbose_name='Адреса доставки и сроки')
+	comment = models.CharField(
+		verbose_name='Комментарий',
+		max_length=1024,
+		blank=True
 	)
-	product_company = models.ForeignKey(
-		'ProductCompany',
-		on_delete=models.CASCADE
-	)
-	characteristics = HStoreField()
-	design = models.FileField(
-		upload_to='design_product/',
-		max_length=50
-	)
-	count = models.IntegerField()
-	price = models.IntegerField()
 	datetime = models.DateTimeField(auto_now_add=True)
 	STATUS = (
-		(1, 'Новый заказ'),
-		(2, 'На согласовании'),
+		(1, 'Новая заявка'),
+		(2, 'Ожидание ответа'),
 		(3, 'Отправка'),
 		(4, 'В пути'),
-		(5, 'Прибыл'),
+		(5, 'Прибыл')
 	)
 	status = models.IntegerField(choices=STATUS)
 
+	objects = models.Manager
 
-class OldOrders(models.Model):
-	user = models.ForeignKey(
-		'User',
-		on_delete=models.CASCADE
-	)
-	product_company = models.ForeignKey(
-		'ProductCompany',
-		on_delete=models.CASCADE
-	)
-	is_canceled = models.BooleanField()
-	characteristics = HStoreField()
-	design = models.FileField(
-		upload_to='design_product_old/',
-		max_length=50
-	)
-	count = models.IntegerField()
+
+class OrderProduct(models.Model):
+	"""Продукты фигурирующие в заказе"""
+	order = models.ForeignKey('Order', on_delete=models.CASCADE)
+	product = models.ForeignKey('Product', on_delete=models.CASCADE)
+	characteristics = models.JSONField(verbose_name='Характеристики')
+	design_url = models.CharField(verbose_name='Ссылка на дизайн', max_length=128)
+	total_count = models.IntegerField(verbose_name='Общее количество товара')
+	price = models.IntegerField(verbose_name='Стоимость')
+	count_and_address = models.JSONField(verbose_name='Адреса доставки и количество товара')
+
+	objects = models.Manager
+
+
+class OrderExecutionProposal(models.Model):
+	"""Предложения от компаний на выполнение заказа"""
+	order = models.ForeignKey('Order', on_delete=models.CASCADE)
+	company = models.ForeignKey('Company', on_delete=models.CASCADE)
+	order_products = models.JSONField()
+	price = models.IntegerField(verbose_name='Общая стоимость')
+	is_partially = models.BooleanField(verbose_name='Частичное выполнение', default=False)
+
+	objects = models.Manager
+
+
+class OrderExecution(models.Model):
+	"""Заказ на выполнение компанией каторую выбрал заказчик"""
+	order = models.ForeignKey('Order', on_delete=models.CASCADE)
+	company = models.ForeignKey('Company', on_delete=models.CASCADE)
+	order_products = models.JSONField()
+	price = models.IntegerField(verbose_name='Стоимость')
+
+	objects = models.Manager
+
+
+class OldOrder(models.Model):
+	"""Информация о недействующих заказах"""
+	user = models.ForeignKey('User', on_delete=models.CASCADE)
+	company = models.ForeignKey('Company', on_delete=models.CASCADE)
 	price = models.IntegerField()
+	CONTEXT = (
+		(1, 'Завершён'),
+		(2, 'Окончание времени'),
+		(3, 'Отмена компанией'),
+		(4, 'Отмена клиентом'),
+	)
+	context = models.IntegerField(choices=CONTEXT)
 	datetime = models.DateTimeField()
-	datetime_expiration = models.DateTimeField(auto_now_add=True)
+	completion_date = models.DateTimeField(auto_now_add=True)
+
+	objects = models.Manager

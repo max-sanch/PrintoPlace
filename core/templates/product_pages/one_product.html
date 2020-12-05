@@ -1,6 +1,8 @@
 {% extends 'base_templates.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
 
-{% block title %}PrintoPlace - {{ name }}{% endblock %}
+{% block title %}PrintoPlace - {{ product.name }}{% endblock %}
 
 {% block content %}
 <!-- Settings product -->
@@ -8,8 +10,10 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-12 col-md-8">
-				<div class="shadow bg-white rounded mx-auto" style="height: 355px; width: 252px;">
-					<!-- <img src="image/123.jpeg" class="mw-100 mh-100"> -->
+				<div class="mx-auto" id="design" style="height: 355px; width: 252px;">
+					<div class="mt-5" id="load_file">
+						<div class="design bg-white" style="height: 355px;"></div>
+					</div>
 				</div>
 
 				<div class="d-flex justify-content-center p-3 mt-3">
@@ -38,76 +42,81 @@
 
 			<div class="col-12 col-md-4 mt-3 mt-md-0">
 				<div class="bg-white rounded text-secondary p-3">
-					<div class="text-center"><h4>{{ name }}</h4></div>
-					<div class="text-right display-4 py-3">84р</div>
+					<div class="text-center"><h4>{{ product.name }}</h4></div>
+					<div class="text-right display-4 py-3">{{ product.price }}р</div>
+					<form method="post" enctype="multipart/form-data">
+						{% csrf_token %}
+						<input type="hidden" name="next" value="">
 
-					<div class="row mt-3">
-						<div class="col-4"><p class="text-secondary">Формат</p></div>
-						<div class="col-8">
-							<select class="form-control form-control-sm mt-2 mt-md-0">
-								<option>54 x 86 mm</option>
-								<option>86 x 54 mm</option>
-							</select>
-						</div>
+						<div class="row mt-3">
+							{% for char in characteristic_list %}
+							<div class="col-4 btn-group dropleft mb-3" >
+								<a class="text-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ char.0 }}</a>
+								<div class="dropdown-menu p-4 text-muted" style="width: 600px;">
+									<h5>{{ char.0 }}</h5>
+									<p>У вас есть выбор - из 25 фиксированных форматов для Flyer plano. Или можете распланировать размер как хотите в свободном формате.</p>
 
-						<div class="col-4"><p class="text-secondary">Цвет</p></div>
-						<div class="col-8">
-							<select class="form-control form-control-sm mt-2 mt-md-0">
-								<option>4/4 = двусторонний четырехцветный</option>
-							</select>
-						</div>
+									<p>Фиксированные форматы:</p>
+									<p>DIN A3 = 297 x 420 мм и 420 x 297 мм</p>
+									<p>DIN A4 = 210 x 297 мм и 297 x 210 мм</p>
+									<p>DIN A5 = 148 x 210 мм и 210 x 148 мм</p>
+									<p>DIN A6 = 105 x 148 мм и 148 x 105 мм</p>
+									<p>DIN A7 = 74 x 105 мм и 105 x 74 мм</p>
+									<p>DIN A8 = 52 x 74 мм и 74 x 52 мм</p>
+									<p>длина DIN 99 = 99 x 210 и 210 x 99 мм</p>
+									<p>длина DIN 100 = 100 x 210 и 210 x 100 мм</p>
+									<p>DIN длинный 105 = 105 x 210 мм и 210 x 105 мм</p>
+									<p>1/2 портретная A4 = 105 x 297 мм</p>
 
-						<div class="col-4"><p class="text-secondary">Материал</p></div>
-						<div class="col-8">
-							<select class="form-control form-control-sm mt-2 mt-md-0">
-								<option>0,6мм жесткий ПВХ белый</option>
-								<option>0,6мм жесткий ПВХ серебро</option>
-							</select>
-						</div>
+									<p>Квадрат : 210 x 210 мм, 148 x 148 мм,
+									120 x 120 мм, 105 x 105 мм, 100 x 100 мм</p>
 
-						<div class="col-4"><p class="text-secondary">Отделка</p></div>
-						<div class="col-8">
-							<select class="form-control form-control-sm mt-2 mt-md-0">
-								<option>Без отделки</option>
-								<option>Блеск для ламинирования фольгой</option>
-								<option>Ламинирование фольги матовое</option>
-								<option>Горячее золото из фольги спереди</option>
-								<option>Серебро из фольги спереди</option>
-							</select>
-						</div>
+									<p>Размеры формата относятся к окончательному формату.</p>
 
-						<div class="col-4"><p class="text-secondary">Скругления</p></div>
-						<div class="col-8">
-							<select class="form-control form-control-sm mt-2 mt-md-0">
-								<option>Без скругления</option>
-								<option>7 мм</option>
-							</select>
-						</div>
+									<p>Что касается наших бесплатных форматов, мы хотели бы отметить,
+										что по причинам, связанным с производством, не все комбинации длины и высоты могут быть реализованы.
+										Если ваш свободный формат содержит такую ​​комбинацию, наш мастер подсказок поможет вам,
+										и вы сможете изменить значения там.</p>
 
-						<div class="col-4"><p class="text-secondary">Время доставки</p></div>
-						<div class="col-8">
-							<select class="form-control form-control-sm mt-2 mt-md-0">
-								<option>До 24ч(+10%)</option>
-								<option>Обычная</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="row mt-3">
-						<div class="col-6 input-group mb-3">
-							<div class="input-group-prepend">
-								<button class="btn btn-outline-secondary" type="button" id="button-addon1"><i class="fas fa-minus"></i></button>
+									<p>Также обратите внимание на допуск под обрез , который необходимо добавить к размерам.</p>
+								</div>
 							</div>
-							<input type="text" class="form-control" placeholder="Количество" aria-describedby="button-addon1" value="10">
-							<div class="input-group-append">
-								<button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fas fa-plus"></i></button>
+							<div class="col-8">
+								<select name="{{ char.0 }}" class="select form-control form-control-sm mt-2 mt-md-0">
+								{% for char_value_list in char.1.items %}
+									{% for char_value in char_value_list.1 %}
+									<option value="{{ char_value }}">{{ char_value }}</option>
+									{% endfor %}
+								{% endfor %}
+								</select>
+							</div>
+							{% endfor %}
+						</div>
+
+						<div id="div_id_design" class="form-group">
+							<label for="id_design" class=" requiredField">Оформление</label>
+							<div>
+								<input type="file" name="design"
+											 class="clearablefileinput form-control-file"
+											 required="" id="id_design"
+											 onchange="handle_files(this.files)">
 							</div>
 						</div>
 
-						<div class="col-6">
-							<a href="shopping_cart.html" class="btn btn-primary w-100" type="button">В корзину</a>
+						<div class="form-group mt-3">
+							<label for="id_count" class=" requiredField">Количество</label>
+							<div class="row">
+								<div id="div_id_count" class="col-6 mb-3">
+									<input type="number" name="count" min="1" class="numberinput form-control" placeholder="Количество" value="1" required="" id="id_count">
+								</div>
+
+								<div class="col-6 pl-0">
+									<button class="btn btn-primary w-100" type="submit">В корзину</button>
+								</div>
+							</div>
 						</div>
-					</div>
+
+					</form>
 
 					<div class="row mt-3">
 						<h5 class="col-6">ИТОГО:</h5>
@@ -123,33 +132,8 @@
 <div class="pt-5">
 	<div class="container">
 		<h3 class="text-secondary mb-5">Описание продукта</h3>
-		<div class="row">
-			<div class="col-md-4 col-sm-12 pb-5">
-				<p class="text-primary h4 mb-2">Индивидуально</p>
-				<p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br><br>Sed do eiusmod
-				tempor incididunt ut labore et dolore magna aliqua. Excepteur sint occaecat cupidatat non
-				proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-			</div>
-
-			<div class="col-md-4 col-sm-12 pb-5">
-				<p class="text-primary h4 mb-2">Удобный</p>
-				<p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-				tempor incididunt ut labore et dolore magna aliqua.</p>
-				<ul class="text-secondary">
-					<li>Ut enim ad minim veniam</li>
-					<li>Purus sodales ultricies</li>
-					<li>Lorem ipsum dolor sit amet</li>
-					<li>Vestibulum laoreet porttitor sem</li>
-				</ul>
-			</div>
-
-			<div class="col-md-4 col-sm-12 pb-5">
-				<p class="text-primary h4 mb-2">Вдохновляющий</p>
-				<p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-				tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-				quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-				consequat. Duis aute irure dolor in reprehenderit in voluptate.</p>
-			</div>
+		<div class="pb-5 text-secondary text-center">
+			<p>{{ product.description }}</p>
 		</div>
 	</div>
 </div>
@@ -163,7 +147,7 @@
 			{% load static %}
 			<div class="col-12 col-md-4 pb-5">
 				<div class="card">
-					<img src="{% static 'image/Cards-Mockup.jpg' %}" class="card-img-top">
+					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">
 					<div class="card-body">
 						<h5 class="card-title">Card title</h5>
 						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -173,7 +157,7 @@
 
 			<div class="col-12 col-md-4 pb-5">
 				<div class="card">
-					<img src="{% static 'image/Cards-Mockup.jpg' %}" class="card-img-top">
+					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">
 					<div class="card-body">
 						<h5 class="card-title">Card title</h5>
 						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -183,7 +167,7 @@
 
 			<div class="col-12 col-md-4 pb-5">
 				<div class="card">
-					<img src="{% static 'image/Cards-Mockup.jpg' %}" class="card-img-top">
+					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">
 					<div class="card-body">
 						<h5 class="card-title">Card title</h5>
 						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -194,163 +178,9 @@
 	</div>
 </div>
 
-<!-- Contact Information -->
-<div class="bg-primary">
-	<div class="container pb-4">
-		<div class="row">
-			<div class="col-md-8 mt-4">
-				<div class="d-flex flex-column bd-highlight">
-					<div class="bd-highlight"><h3 class="text-white">Любые вопросы?</h3></div>
-					<div class="bd-highlight"><p class="text-white mb-0">Проконсультируем в личной беседе.</p></div>
-				</div>
-			</div>
-			<div class="col-md-4 mt-4">
-				<div class="d-flex flex-column bd-highlight">
-					<div class="bd-highlight ml-auto"><h3 class="text-white"><i class="fas fa-phone"></i> +7 (999) 999-9999</h3></div>
-					<div class="bd-highlight ml-auto"><p class="text-white mb-0"><i class="fas fa-at"></i> Email: service@viaprinto.de</p></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+{% include 'includes/contact_info.html' %}
 
-<!-- Shipping and payment -->
-<div class="bg-light">
-	<div class="container pb-5">
-		<div class="row">
-			<div class="col-md-3 col-sm-12 mt-5 px-4">
-				<h3 class="text-secondary">Доставка</h3>
-				<div class="row">
+{% include 'includes/delivery_payment.html' %}
 
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-6 col-md-12 pt-0 pt-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-2 py-3">
-								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-				</div>
-			</div>
-			<div class="col-md-6 col-sm-12 mt-5 px-4">
-				<h3 class="text-secondary">Оплата</h3>
-				<div class="row">
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 pb-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-6 pt-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-2 py-3">
-								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-6 pt-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-2 py-3">
-								<img src="https://www.viaprinto.de/media/images/footer/dhl.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-				</div>
-			</div>
-			<div class="col-md-3 col-sm-12 mt-5 px-4">
-				<h3 class="text-secondary">Соц. сети</h3>
-				<div class="row">
-
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pb-0 pb-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pt-0 pt-md-2 px-2">
-						<a href="#">
-							<div class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/ups.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-					<div class="col-3 col-md-6 pt-0 pt-md-2 px-2">
-						<a href="#">
-							<div  class="bg-white w-100 h-100 px-3 py-2">
-								<img src="https://www.viaprinto.de/media/images/footer/dpd.svg" class="w-100 h-100">
-							</div>
-						</a>
-					</div>
-
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Footer -->
-<div>
-	<div class="container pb-2 pt-2">
-		<div class="d-flex justify-content-between">
-			<div class="d-inline-flex p-2 bd-highlight"><p class="text-secondary mb-0">Copyright © AirPrint 2020</p></div>
-			<div class="d-inline-flex p-2 bd-highlight"><a href="privacy_policy.html" class="text-secondary">Соглашения и договор</a></div>
-		</div>
-	</div>
-</div>
+{% include 'includes/footer.html' %}
 {% endblock %}

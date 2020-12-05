@@ -1,0 +1,57 @@
+{% extends 'base_templates.html' %}
+
+{% block title %}PrintoPlace - Оформление заказа{% endblock %}
+{% block content_class %}bg-white h-100-60{% endblock %}
+{% block content %}
+<!-- Login form -->
+<div class="py-5">
+	<div class="container">
+		<h3 class="text-secondary pb-4">Оформление заказа</h3>
+
+		<form method="post" class="">
+			{% csrf_token %}
+			<input type="hidden" name="next" value="">
+
+			<div style="min-height: 70vh;">
+				<div id="address-list">
+					<div class="row">
+						<div class="col-12 col-lg-6">
+							<div class="form-group">
+								<label class=" requiredField">Адрес доставки<span class="asteriskField">*</span></label>
+								<input type="text" name="address" class="textinput textInput form-control" required="">
+							</div>
+						</div>
+						<div class="col-12 col-lg-6">
+							<label class=" requiredField">Срок, к которому нужно выполнить заказ<span class="asteriskField">*</span></label>
+							<div class="form-group form-row">
+								<div class="mr-3">
+									<input type="date" name="date" autofocus="" autocapitalize="none" maxlength="255"
+												 class="textinput textInput form-control" required="" id="id_date">
+								</div>
+								<div>
+									<input type="time" name="time" autofocus="" autocapitalize="none" maxlength="255"
+												 class="textinput textInput form-control" required="" id="id_time">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<button type="button" class="btn btn-link text-secondary" onclick="add_address()">+ добавить адрес</button>
+
+				<div class="form-group mt-5" style="max-width: 400px;">
+					<label class=" requiredField">Комментарий</label>
+					<textarea class="form-control" name="comment" rows="4"></textarea>
+				</div>
+			</div>
+
+
+			<div class="row px-3 mt-4">
+				<a href="{% url 'shopping_cart' %}" class="btn btn-outline-my"><i class="fas fa-angle-left"></i> Корзина</a>
+				<button type="submit" class="btn btn-outline-my ml-auto">Далее <i class="fas fa-angle-right"></i></button>
+			</div>
+		</form>
+
+	</div>
+</div>
+{% endblock %}

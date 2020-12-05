@@ -12,7 +12,7 @@
 		</div>
 		<div class="d-flex justify-content-center">
 			<div class="d-inline-flex p-4 bd-highlight rounded border bg-white">
-				<form method="post" class="">
+				<form method="post">
 					{% csrf_token %}
 					<input type="hidden" name="next" value="">
 
@@ -81,6 +81,7 @@
 										 class="textinput textInput form-control {% if form.company_name.errors %}is-invalid{% endif %}"
 										 value="{% if form.company_name.value and not form.company_name.errors %}{{ form.company_name.value }}{% endif %}"
 										 id="id_company_name">
+							<small class="form-text text-muted">Стать исполнителем можно будет в личном кабинете.</small>
 						</div>
 						{% for error in form.company_name.errors %}
 						<p class="mt-1 text-danger">{{ error|escape }}</p>

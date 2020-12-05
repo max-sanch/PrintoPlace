@@ -1,4 +1,6 @@
 {% extends 'base_templates.html' %}
+{% load base_functions %}
+{% load static %}
 
 {% block title %}PrintoPlace - Личный кабинет{% endblock %}
 {% block content %}
@@ -9,9 +11,12 @@
 			<div class="col-12 col-md-3 mb-4">
 				<div class="nav row nav-pills px-3" role="tablist" aria-orientation="vertical">
 					<a class="nav-link col-12 active" id="prof_tab" data-toggle="pill" href="#prof" role="tab" aria-controls="prof" aria-selected="false">Мой профиль</a>
+					{% if not request.user.is_company %}
 					<a class="nav-link col-12" id="ord_tab" data-toggle="pill" href="#ord" role="tab" aria-controls="ord" aria-selected="true">Мои заказы</a>
+					{% endif %}
 					{% if request.user.is_company %}
 					<a class="nav-link col-12" id="catl_tab" data-toggle="pill" href="#catl" role="tab" aria-controls="catl" aria-selected="false">Мой каталог</a>
+					<a class="nav-link col-12" href="{% url 'new_orders' %}">Новые заказы</a>
 					{% endif %}
 				</div>
 			</div>
@@ -21,31 +26,32 @@
 						<nav>
 							<div class="nav nav-tabs" id="nav-tab2" role="tablist">
 								<a class="nav-link active" id="dprf-tab" data-toggle="tab" href="#dprf" role="tab" aria-controls="dprf" aria-selected="true">Данные профиля</a>
-								<a href="{% url 'password_change' %}" class="nav-link">Сменить пароль</a>
-								{% if not request.user.is_company %}
-								<a href="{% url 'become_company' %}" class="nav-link">Стать исполнителем</a>
-								{% elif not company.is_verification and company.is_verified %}
-								<a href="{% url 'update_company' %}" class="nav-link">Данные компании</a>
+								{% if company.is_verification %}
+								<a class="nav-link" id="comp-tab" data-toggle="tab" href="#comp" role="tab" aria-controls="comp" aria-selected="true">Реквизиты компании</a>
 								{% endif %}
-
+								{% if company.is_verified and not company.is_verification %}
+								<a href="{% url 'update_company' %}" class="nav-link">Профиль компании</a>
+								{% endif %}
+								<a href="{% url 'password_change' %}" class="nav-link">Сменить пароль</a>
 							</div>
 						</nav>
 
 						<div class="tab-content" id="nav-tabContent2">
 							<div class="tab-pane fade show active p-4" id="dprf" role="tabpanel" aria-labelledby="dprf_tab">
-								{% if request.user.is_company %}
-								<div class="mb-2">
-									{% if company.is_verification %}
-									<p class="text-success">Ваша компания успешно прошла верификацию! Теперь вы можете размешать товар.</p>
-									{% else %}
-										{% if company.is_verified %}
-										<p class="text-secondary">Сообщение от модератора: {{ company.moderator_message }}</p>
-										{% else %}
-										<p class="text-secondary">Заявка на верификацию отправлена, рассмотрение обычно занимет 24ч.</p>
-										{% endif %}
-									{% endif %}
+								{% if notifications %}
+								<div class="rounded border border-warning mb-3">
+									<div class="d-flex justify-content-between">
+										<h5 class="text-warning ml-3 mt-2">Уведомление</h5>
+										<a href="{% url 'delete_notification' %}" class="close mr-2" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</a>
+									</div>
+									{% for notification in notifications %}
+									<p class="text-secondary mx-4">{{ notification }}</p>
+									{% endfor %}
 								</div>
 								{% endif %}
+
 								<form method="post" class="mw-22rem">
 									{% csrf_token %}
 									<div class="form-row">
@@ -108,22 +114,6 @@
 										{% endfor %}
 									</div>
 
-									{% if request.user.is_company %}
-									<div id="div_id_inn" class="form-group">
-										<label class="requiredField">ИНН</label>
-
-										<div class="">
-											<input type="text" name="inn" maxlength="11"
-														 class="textinput textInput form-control"
-														 value="{{ company.inn }}" id="id_inn">
-										</div>
-
-										{% for error in form.inn.errors %}
-										<p class="mt-1 text-danger">{{ error|escape }}</p>
-										{% endfor %}
-									</div>
-									{% endif %}
-
 									<div class="form-group">
 										<label class="requiredField">Email</label>
 										<div class="">
@@ -131,14 +121,72 @@
 										</div>
 									</div>
 
-									<div class="mt-4">
+									<div class="d-flex justify-content-between mt-4">
+										{% if not request.user.is_company %}
+										<a href="{% url 'become_company' %}" class="btn btn-outline-my">Стать исполнителем</a>
+										{% endif %}
 										<button type="submit" class="btn btn-primary">Сохранить</button>
 									</div>
 								</form>
 							</div>
+							{% if company.is_verification %}
+							<div class="tab-pane fade py-4" id="comp" role="tabpanel" aria-labelledby="comp_tab">
+								<div class="row">
+									<div class="col-12 col-md-4 col-lg-3">
+										<div class="d-block mx-auto image-company" id="image_company"
+												 style="background-image: url({% static 'image/none_img.png' %});">
+											<input type="file" id="inputFile" name="file"
+														 class="input-file" onchange="load_company_file(this.files)">
+											<label for="inputFile"></label>
+										</div>
+									</div>
+									<div class="col-12 col-md-8 col-lg-9 mt-3 mt-md-0">
+										<h4 class="text-secondary mt-2">{{ request.user.company_name }}</h4>
+										<div class="form-group">
+											<label class="text-secondary mt-3">Торговое название</label>
+											<input type="email" class="form-control" name="trade_name">
+										</div>
+									</div>
+								</div>
+								<div class="row border-bottom py-4">
+									<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+										<p class="mb-1">Email</p>
+										<h6 class="text-primary">{{ request.user.email }}</h6>
+									</div>
+									<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+										<p class="mb-1">Телфон</p>
+										<h6 class="text-secondary">{{ request.user.phone_number }}</h6>
+									</div>
+									<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+										<p class="mb-1">Контактное лицо</p>
+										<h6 class="text-secondary">{{ request.user.full_name }}</h6>
+									</div>
+									<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+										<p class="mb-1">ИНН</p>
+										<h6 class="text-secondary">{{ company.inn }}</h6>
+									</div>
+								</div>
+								<div class="py-4">
+									<h5 class="text-secondary mb-3">Адреса</h5>
+									<div id="address-list">
+<!--										<div class="form-inline" id="">-->
+<!--											<input type="text" class="form-control col-10 col-lg-8" name="address">-->
+<!--											<div class="text-secondary col-2 p-2 pt-3 pl-3 h6">-->
+<!--												<i class="far fa-trash-alt" onclick="remove_address('div-address-')"></i>-->
+<!--											</div>-->
+<!--										</div>-->
+									</div>
+									<button type="button" class="btn btn-link text-secondary p-0" onclick="add_address_company()">+ добавить адрес</button>
+								</div>
+								<div class="d-flex">
+									<button type="submit" class="btn btn-primary d-block ml-auto">Сохранить</button>
+								</div>
+							</div>
+							{% endif %}
 						</div>
 					</div>
 
+					{% if not request.user.is_company %}
 					<div class="tab-pane fade" id="ord" role="tabpanel" aria-labelledby="ord_tab">
 						<nav>
 							<div class="nav nav-tabs" id="nav-tab1" role="tablist">
@@ -148,91 +196,153 @@
 							</div>
 						</nav>
 
-						<div class="tab-content" id="nav-tabContent1">
+						<div class="tab-content">
 							<div class="tab-pane fade show active p-4" id="actv" role="tabpanel" aria-labelledby="actv-tab">
-								<h5 class="text-secondary mb-3">09.09.2020</h5>
-
-								<div class="border rounded p-3 mb-3">
+								{% for order in orders %}
+								<div class="mb-3">
 									<div class="row">
-										<div class="col-12 col-md-3 text-center py-2">
-											<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-										</div>
-										<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
-											<h4>Настенный календарь</h4>
-											<p class="mb-1">Формат: A5; Цвет: 1/0; глянец; Цвет спирали: серебряный</p>
-											<p>Доставка: PDP</p>
-											<div class="row">
-												<h5 class="col-6">74p (1шт)</h5>
-												<h5 class="col-6 text-warning text-right">Ожидание</h5>
+										<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.order.id }} от {{ order.datetime }}мск</h5>
+										{% get_status_client order.status as status %}
+										<h5 class="col-12 col-lg-5 text-success text-right">{{ status }}</h5>
+									</div>
+
+									<a href="{% url 'proposals' order.order.id %}" type="button" class="btn btn-primary btn-sm mb-3">
+										Смотреть предложения <span class="badge badge-light">0</span>
+									</a>
+
+									{% get_products order.order.id as prod_orders %}
+									{% for one_prod in prod_orders %}
+									<div class="border border-secondary rounded p-3 mb-3">
+										<div class="row">
+											<div class="col-12 col-lg-3">
+												<img src="{{ one_prod.design_url }}" class="rounded d-block mx-auto" style="max-width: 160px; max-height: 160px;">
+											</div>
+											<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+												<div class="text-secondary">
+													<h4>{{ one_prod.product.name }}</h4>
+													<p>
+														{% for char in one_prod.characteristics.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+													</p>
+												</div>
+
+												<div>
+													{% get_address_and_data one_prod.id as addresses %}
+													{% for address in addresses %}
+													<div class="row">
+														<div class="col-2 text-secondary text-center"><small>{{ address.0 }} шт</small></div>
+														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ address.1 }}</small></div>
+														<div class="col-3 text-secondary"><small>до {{ address.2 }} {{ address.3 }}</small></div>
+													</div>
+													{% endfor %}
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-
-								<div class="border rounded p-3 mb-3">
-									<div class="row">
-										<div class="col-12 col-md-3 text-center py-2">
-											<a href="one_product.html" class="text-secondary display-1"><i class="far fa-address-book"></i></a>
-										</div>
-										<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
-											<h4>Спиральные переплеты с твердым переплетом</h4>
-											<p class="mb-1">Формат: A4; Цвет: 4/0; Бумага: матовый; Цвет спирали: чёрный</p>
-											<p>Доставка: PDP</p>
-											<div class="row">
-												<h5 class="col-6">15400р (100шт)</h5>
-												<h5 class="col-6 text-warning text-right">Ожидание</h5>
-											</div>
-										</div>
+									{% endfor %}
+									{% if order.status == 1 %}
+									<div class="d-flex justify-content-end">
+										<a href="{% url 'delete_order' order.order.id 4 %}" class="btn btn-outline-danger">Отменить</a>
 									</div>
+									{% elif order.status == 2 %}
+									<div class="d-flex justify-content-end">
+										<a href="{% url 'delete_order' order.order.id 4 %}" class="btn btn-outline-danger mr-3">Отменить</a>
+										<a href="{% url 'payment' order.order.id %}" class="btn btn-outline-my">Оплатить</a>
+									</div>
+									{% elif order.status == 4 %}
+									<div class="d-flex justify-content-end">
+										<a href="{% url 'order_handler' order.order.id order.status %}" class="btn btn-outline-my">Прибыл</a>
+									</div>
+									{% endif %}
 								</div>
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
 							</div>
 
 							<div class="tab-pane fade p-4" id="copl" role="tabpanel" aria-labelledby="copl-tab">
-								<h5 class="text-secondary mb-3">11.08.2020</h5>
-
-								<div class="border rounded p-3 mb-3">
+								{% for order in completed_orders %}
+								<div class="mb-3">
 									<div class="row">
-										<div class="col-12 col-md-3 text-center py-2">
-											<a href="one_product.html" class="text-secondary display-1"><i class="far fa-calendar-alt"></i></a>
-										</div>
-										<div class="col-12 col-md-9 text-secondary pl-3 pl-md-0">
-											<h4>Настенный календарь</h4>
-											<p class="mb-1">Формат: A5; Цвет: 1/0; глянец; Цвет спирали: серебряный</p>
-											<p>Доставка: PDP</p>
-											<div class="row">
-												<h5 class="col-6">740p (10шт)</h5>
-												<h5 class="col-6 text-success text-right">Исполнено</h5>
+										<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ от {{ order.datetime }}мск</h5>
+										{% get_status_client order.status as status %}
+										<h5 class="col-12 col-lg-5 text-success text-right">{{ status }}</h5>
+									</div>
+
+									{% for one_prod in order.products.products %}
+									{% get_products one_prod.product as product %}
+									<div class="border border-secondary rounded p-3 mb-3">
+										<div class="row">
+											<div class="col-12 col-lg-3">
+												<img src="{{ one_prod.design }}" class="rounded" style="max-width: 160px; max-height: 160px;">
+											</div>
+											<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+												<div class="text-secondary">
+													<h4>{{ product.name }}</h4>
+													<p>
+														{% for char in one_prod.characteristics.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+													</p>
+												</div>
+												<h5 class="text-secondary">{% mult product.price one_prod.count %}p ({{ one_prod.count }}шт)</h5>
 											</div>
 										</div>
 									</div>
+									{% endfor %}
+									<div class="d-flex justify-content-end text-secondary">
+										<a href="{% url 'repeat_order' order.id %}" type="button" class="btn btn-outline-my">Повторить</a>
+									</div>
 								</div>
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
 							</div>
 
 							<div class="tab-pane fade p-4" id="cncl" role="tabpanel" aria-labelledby="cncl-tab">
-								<h5 class="text-secondary mb-3">Пусто</h5>
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
 							</div>
 						</div>
 					</div>
+					{% endif %}
 
 					{% if request.user.is_company %}
 					<div class="tab-pane fade" id="catl" role="tabpanel" aria-labelledby="catl_tab">
 						{% if company.is_verification %}
-						<nav>
-							<div class="nav nav-tabs" id="nav-tab3" role="tablist">
-								<a class="nav-link active" id="act-tab" data-toggle="tab" href="#act" role="tab" aria-controls="act" aria-selected="true">Активные</a>
-								<a class="nav-link" id="off-tab" data-toggle="tab" href="#off" role="tab" aria-controls="off" aria-selected="false">Не активные</a>
-							</div>
-						</nav>
+						<a href="{% url 'add_product_list' %}" type="button" class="btn btn-outline-secondary w-100 mb-3">Добавить новый продукт</a>
 
-						<div class="tab-content" id="nav-tabContent3">
-							<div class="tab-pane fade show active p-4" id="act" role="tabpanel" aria-labelledby="act">
-								...
-							</div>
-
-							<div class="tab-pane fade p-4" id="off" role="tabpanel" aria-labelledby="off-tab">
-								...
+						{% for one_prod in products %}
+						<div class="border border-secondary rounded p-3 mb-3">
+							<div class="row">
+								<div class="col-12 col-lg-3 text-center">
+									<a href="{% url 'one_product' one_prod.product.slug %}">
+										<img src="{% get_static_prefix %}image/icon/{{ one_prod.product.slug }}.svg">
+									</a>
+								</div>
+								<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+									<div class="text-secondary">
+										<h4>{{ one_prod.product.name }}</h4>
+										<p>
+											{% for char in one_prod.characteristics.items %}
+												{{ char.0 }}:
+												{% for value in char.1 %}
+													{{ value }}{% if value == char.1|last %}; {% else %}, {% endif %}
+												{% endfor %}
+											{% endfor %}
+										</p>
+									</div>
+									<div class="d-flex justify-content-between text-secondary">
+										<a href="#" type="button" class="btn btn-outline-danger">Удалить</a>
+										<a href="#" type="button" class="btn btn-outline-my">Изменить</a>
+									</div>
+								</div>
 							</div>
 						</div>
+						{% empty %}
+						<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+						{% endfor %}
+
 						{% else %}
 						<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
 						{% endif %}
@@ -244,33 +354,7 @@
 	</div>
 </div>
 
-<!-- Contact Information -->
-<div class="bg-primary">
-	<div class="container pb-4">
-		<div class="row">
-			<div class="col-md-8 mt-4">
-				<div class="d-flex flex-column bd-highlight">
-					<div class="bd-highlight"><h3 class="text-white">Любые вопросы?</h3></div>
-					<div class="bd-highlight"><p class="text-white mb-0">Проконсультируем в личной беседе.</p></div>
-				</div>
-			</div>
-			<div class="col-md-4 mt-4">
-				<div class="d-flex flex-column bd-highlight">
-					<div class="bd-highlight ml-auto"><h3 class="text-white"><i class="fas fa-phone"></i> +7 (999) 999-9999</h3></div>
-					<div class="bd-highlight ml-auto"><p class="text-white mb-0"><i class="fas fa-at"></i> Email: service@viaprinto.de</p></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+{% include 'includes/contact_info.html' %}
 
-<!-- Footer -->
-<div>
-	<div class="container pb-2 pt-2">
-		<div class="d-flex justify-content-between">
-			<div class="d-inline-flex p-2 bd-highlight"><p class="text-secondary mb-0">Copyright © AirPrint 2020</p></div>
-			<div class="d-inline-flex p-2 bd-highlight"><a href="privacy_policy.html" class="text-secondary">Соглашения и договор</a></div>
-		</div>
-	</div>
-</div>
+{% include 'includes/footer.html' %}
 {% endblock %}

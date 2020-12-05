@@ -1,0 +1,50 @@
+{% extends 'base_templates.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}PrintoPlace - Добавление товара{% endblock %}
+{% block content_class %}bg-light{% endblock %}
+{% block content %}
+<!-- Registration form -->
+<div class="py-5">
+	<div class="container">
+		<div class="text-center mb-4">
+			<h3>Добавление товара</h3>
+		</div>
+		<div class="d-flex justify-content-center">
+			<div class="d-inline-flex p-4 bd-highlight rounded border bg-white">
+				<form method="post" style="width: 25rem;">
+					{% csrf_token %}
+					<input type="hidden" name="next" value="">
+
+					{% for char in characteristics_list %}
+					<div class="form-group">
+						<h4 class="text-secondary">{{ char.0 }}</h4>
+						{% for char_value_list in char.1.items %}
+						{% if char_value_list.0 != 'default' %}
+							<p class="text-secondary">{{ char_value_list.0 }}</p>
+						{% endif %}
+							{% for char_value in char_value_list.1 %}
+
+							<div id="div_id_{{ char.0 }}" class="form-check">
+								<input type="checkbox" name="{{ char.0 }}"
+											 class="checkboxinput form-check-input" value="{{ char_value }}"
+											 id="id_{{ char.0 }}">
+								<label for="id_{{ char.0 }}" class="form-check-label">
+									{{ char_value }}
+								</label>
+							</div>
+
+							{% endfor %}
+						{% endfor %}
+					</div>
+					{% endfor %}
+
+					<div class="d-flex justify-content-end mt-4">
+						<button type="submit" class="btn btn-primary">Сохранить</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

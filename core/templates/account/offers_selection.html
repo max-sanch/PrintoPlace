@@ -1,0 +1,86 @@
+{% extends 'base_templates.html' %}
+{% load base_functions %}
+
+{% block title %}PrintoPlace - Оформление заказа{% endblock %}
+{% block content_class %}bg-white h-100-60{% endblock %}
+{% block content %}
+<!-- Login form -->
+<div class="py-5">
+	<div class="container">
+		<h3 class="text-secondary pb-4 pl-3">Список предложений для заказа №{{ order_id }}</h3>
+			<div style="min-height: 70vh;">
+				{% if not is_proposals %}
+				<h4 class="text-secondary text-center">Предложений нет</h4>
+				{% else %}
+
+					{% for proposal_category in proposals.items %}
+					{% if proposal_category.0 == 'best' %}
+					<h4 class="text-secondary">Лучшее предложение</h4>
+					<div class="border border-secondary rounded py-3 px-4 mb-2">
+						{% for company in proposal_category.1 %}
+						<h5 class="text-secondary mb-3">{{ company.company.user.company_name }}</h5>
+							{% for product in company.order_products.items %}
+								<div class="mb-3">
+								{% get_one_product product.0 as order_product %}
+								<h6 class="pl-3">{{ order_product.product.name }}</h6>
+								{% for item in product.1 %}
+								<div class="row text-secondary">
+									<div class="col-2 text-center">{{ item.0 }} шт</div>
+									<div class="col-7">
+										<i class="fas fa-map-marker-alt text-primary"></i> {% get_address item.1 order_id %}
+									</div>
+									<div class="col-3 text-center">{{ item.2 }}руб</div>
+								</div>
+								{% endfor %}
+								</div>
+							{% endfor %}
+						{% endfor %}
+						<div class="d-flex justify-content-between mt-4">
+							<h5 class="text-primary">Сумма заказа: 2200руб</h5>
+							<a href="" type="button" class="btn btn-primary">Выбрать</a>
+						</div>
+					</div>
+					{% else %}
+						<h4 class="text-secondary mt-3">Остальные предложения</h4>
+						{% for proposal in proposal_category.1 %}
+						<div class="border border-secondary rounded py-3 px-4 mb-2">
+							{% for company in proposal_category.1 %}
+							<h5 class="text-secondary mb-3">{{ company.company.user.company_name }}</h5>
+								{% for product in company.order_products.items %}
+									<div class="mb-3">
+									{% get_one_product product.0 as order_product %}
+									<h6 class="pl-3">{{ order_product.product.name }}</h6>
+									{% for item in product.1 %}
+									<div class="row text-secondary">
+										<div class="col-2 text-center">{{ item.0 }} шт</div>
+										<div class="col-7">
+											<i class="fas fa-map-marker-alt text-primary"></i> {% get_address item.1 order_id %}
+										</div>
+										<div class="col-3 text-center">{{ item.2 }}руб</div>
+									</div>
+									{% endfor %}
+									</div>
+								{% endfor %}
+							{% endfor %}
+							<div class="d-flex justify-content-between mt-4">
+								<h5 class="text-primary">Сумма заказа: 2200руб</h5>
+								<a href="" type="button" class="btn btn-primary">Выбрать</a>
+							</div>
+						</div>
+						{% empty %}
+						<h4 class="text-secondary text-center">Тут пусто</h4>
+						{% endfor %}
+					{% endif %}
+					{% endfor %}
+
+				{% endif %}
+			</div>
+
+
+			<div class="row px-3 mt-4">
+				<a href="{% url 'personal_account' %}" class="btn btn-outline-my"><i class="fas fa-angle-left"></i> Назад</a>
+			</div>
+
+	</div>
+</div>
+{% endblock %}
