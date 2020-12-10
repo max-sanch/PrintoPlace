@@ -100,9 +100,10 @@
 							</li>
 						</ul>
 
-						<form class="btn-group ml-2">
-							<input class="form-control input-group-prepend border-right-0 pr-0 search" type="text" placeholder="Поиск">
-							<button class="btn bg-white text-secondary search-btn border-left-0" type="button"><i class="fas fa-search"></i></button>
+						<form class="btn-group ml-0 ml-lg-2">
+							<input class="form-control input-group-prepend border-right-0 pr-0 search"
+										 type="text" placeholder="Поиск" onkeyup="nav_search()" id="main_search" />
+							<a href="/help/" class="btn bg-white text-secondary search-btn border-left-0" id="btn_search"><i class="fas fa-search"></i></a>
 						</form>
 					</div>
 				</div>
@@ -112,11 +113,9 @@
 
 			{% url 'city' as city_url %}
 			<!-- City selection -->
-			<div class="modal fade show" id="staticBackdropLive"
-					 data-backdrop="static" data-keyboard="false"
-					 tabindex="-1" aria-labelledby="staticBackdropLiveLabel"
-					 style="display: {% if city or request.path == city_url %}none{% else %}block{% endif %};"
-					 aria-modal="true" role="dialog">
+			<div class="modal fade show" id="staticBackdropLive" data-backdrop="static" data-keyboard="false"
+					 tabindex="-1" aria-labelledby="staticBackdropLiveLabel" aria-modal="true" role="dialog"
+					 style="display: {% if city or request.path == city_url %}none{% else %}block{% endif %}; background-color: rgba(0, 0, 0, 0.5);">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">

@@ -28,7 +28,7 @@ class HomePageView(TemplateView):
 class ProductPageView(FormView):
 	template_name = 'product_pages/one_product.html'
 	form_class = forms.ShoppingCartForm
-	success_url = '/products/'
+	success_url = '/product/'
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -41,6 +41,7 @@ class ProductPageView(FormView):
 		return super().form_valid(form)
 
 	def save(self):
+		self.success_url = '/product/' + self.kwargs.get('slug') + '/#successful'
 		post = dict(self.request.POST)
 		char = {x: post[x][0] for x in post if x not in ('csrfmiddlewaretoken', 'next', 'design', 'count')}
 		obj = models.ShoppingCart(
@@ -50,6 +51,36 @@ class ProductPageView(FormView):
 			design=self.request.FILES.get('design'),
 			count=int(post.get('count')[0])
 		)
+		obj.save()
+
+
+class ProductUpdateView(FormView):
+	template_name = 'product_pages/product_update.html'
+	form_class = forms.ShoppingCartForm
+	success_url = '/shopping_cart/'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		product = get_object_or_404(models.ShoppingCart, id=int(self.kwargs.get('product_id')))
+		context['product'] = product.product
+		context['characteristic_list'] = get_characteristic_list(self.kwargs, product.product)
+		context['product_data'] = product
+		return context
+
+	def form_valid(self, form):
+		self.save()
+		return super().form_valid(form)
+
+	def save(self):
+		post = dict(self.request.POST)
+		char = {x: post[x][0] for x in post if x not in ('csrfmiddlewaretoken', 'next', 'design', 'count')}
+		obj = get_object_or_404(models.ShoppingCart, id=int(self.kwargs.get('product_id')))
+
+		if self.request.FILES.get('design') is not None:
+			obj.design = self.request.FILES.get('design')
+
+		obj.characteristics = char
+		obj.count = int(post.get('count')[0])
 		obj.save()
 
 
@@ -131,6 +162,7 @@ class AddProductView(FormView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['characteristics_list'] = get_characteristic_list(self.kwargs)
+		context['product'] = get_object_or_404(models.Product, slug=self.kwargs.get('slug'))
 		return context
 
 	def form_valid(self, form):
@@ -149,7 +181,7 @@ class AddProductView(FormView):
 
 
 class ShoppingCartView(FormView):
-	template_name = 'ordering/shopping_cart.html'
+	template_name = 'ordering_pages/shopping_cart.html'
 	form_class = forms.OrderingForm
 	success_url = '/ordering/'
 
@@ -214,7 +246,7 @@ class ShoppingCartView(FormView):
 
 
 class OrderingView(FormView):
-	template_name = 'ordering/ordering.html'
+	template_name = 'ordering_pages/ordering.html'
 	form_class = forms.OrderDetailForm
 	success_url = '/product_distribution/'
 
@@ -256,13 +288,13 @@ class OrderingView(FormView):
 		user.order_id = 0
 		user.save()
 		clear_cart(user)
-		self.success_url = '/personal_account/'
+		self.success_url = '/orders/#add_order'
 
 
 class ProductDistributionView(FormView):
-	template_name = 'ordering/product_distribution.html'
+	template_name = 'ordering_pages/product_distribution.html'
 	form_class = forms.OrderDetailForm
-	success_url = '/personal_account/'
+	success_url = '/orders/#add_order'
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -303,9 +335,9 @@ class ProductDistributionView(FormView):
 
 
 class NewOrdersView(FormView):
-	template_name = 'account/new_orders.html'
+	template_name = 'account_pages/new_orders.html'
 	form_class = forms.OrderDetailForm
-	success_url = '/new_orders/'
+	success_url = '/payment/'
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -313,19 +345,51 @@ class NewOrdersView(FormView):
 		context['company'] = models.Company.objects.get(user=self.request.user)
 		context['products'] = models.ProductCompany.objects.filter(company__user=self.request.user)
 		context['new_orders'] = self.get_new_orders()
+		context['accepted_orders'] = self.get_accepted_orders()
 
 		return context
 
+	def get_accepted_orders(self):
+		orders_execution = models.OrderExecution.objects.filter(company__user=self.request.user)
+		result = []
+		for order in orders_execution:
+			order_detail = models.OrderDetail.objects.get(order__id=order.order.id)
+			order_data = [order.order.id, order_detail.datetime.date, order.status, 0, order.order.user, [], order.id]
+			for product in order.order_products.items():
+				order_prod = models.OrderProduct.objects.get(id=int(product[0]))
+				price = 0
+				items = []
+
+				for item in product[1]:
+					price += item[2]
+					address = order_detail.address_and_deadline['items'][item[1]][0]
+					data = '%s %s' % (
+						order_detail.address_and_deadline['items'][item[1]][1],
+						order_detail.address_and_deadline['items'][item[1]][2]
+					)
+					items.append((item[0], address, data))
+
+				order_data[3] += price
+				order_data[5].append((
+					order_prod.design_url, order_prod.product.name, price, order_prod.characteristics, items
+				))
+			result.append(order_data)
+		return result
+
 	def get_new_orders(self):
-		orders = models.OrderDetail.objects.all()[::-1]
+		orders = models.OrderDetail.objects.filter(status=1)[::-1]
 		my_proposals = []
+		result = []
+
 		for proposal in models.OrderExecutionProposal.objects.filter(company__user=self.request.user):
 			my_proposals.append(proposal.order.id)
-		result = []
+
 		for order in orders:
 			if order.order.id in my_proposals:
+				result.append((models.OrderExecutionProposal.objects.get(order__id=order.order.id), 0))
 				continue
-			result.append(order)
+			result.append((order, 1))
+
 		return result
 
 	def form_valid(self, form):
@@ -356,6 +420,7 @@ class NewOrdersView(FormView):
 		return super().form_valid(form)
 
 	def save(self, post, order_products, total_price):
+		self.success_url = '/payment/%s/' % post['order'][0]
 		obj = models.OrderExecutionProposal(
 			order=get_object_or_404(models.Order, id=int(post['order'][0])),
 			company=get_object_or_404(models.Company, user=self.request.user),
@@ -373,33 +438,27 @@ class NewOrdersView(FormView):
 
 
 class OrderExecutionProposalView(TemplateView):
-	template_name = 'account/offers_selection.html'
+	template_name = 'ordering_pages/offers_selection.html'
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		proposals = proposals_order_execution.get_proposals(self.kwargs.get('order_id'))
-		if len(proposals['best']) == 0:
-			context['is_proposals'] = False
-		else:
-			context['is_proposals'] = True
-			context['proposals'] = proposals
+		context['proposals'] = proposals_order_execution.start(int(self.kwargs.get('order_id')))
 		context['order_id'] = self.kwargs.get('order_id')
 
 		return context
 
 
 class PaymentView(FormView):
-	template_name = 'ordering/payment.html'
+	template_name = 'ordering_pages/payment.html'
 	form_class = forms.OrderDetailForm
-	success_url = '/personal_account/'
+	success_url = '/new_orders/#successful'
 
 	def form_valid(self, form):
-		order_handler.set_order_status(self.kwargs.get('order_id'), '2')
 		return super().form_valid(form)
 
 
 class LoginView(BaseLoginView):
-	template_name = 'account/login.html'
+	template_name = 'account_pages/login.html'
 	redirect_authenticated_user = True
 
 	def get_success_url(self):
@@ -409,14 +468,10 @@ class LoginView(BaseLoginView):
 		return super().get_success_url()
 
 
-class PersonalAccountView(UpdateView):
-	template_name = 'account/client_personal_account.html'
-	model = models.User
-	fields = ['first_name', 'last_name', 'phone_number', 'company_name']
+class PersonalAccountView(FormView):
+	template_name = 'account_pages/client_personal_account.html'
+	form_class = forms.BecomeCompanyForm
 	success_url = '/personal_account/'
-
-	def get_object(self, queryset=None):
-		return get_object_or_404(models.User, pk=self.request.user.id)
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -424,9 +479,6 @@ class PersonalAccountView(UpdateView):
 		if self.request.user.is_company:
 			context['company'] = models.Company.objects.get(user=self.request.user)
 			context['products'] = models.ProductCompany.objects.filter(company__user=self.request.user)
-		context['orders'] = models.OrderDetail.objects.filter(order__user=self.request.user)[::-1]
-		# context['prod_orders'] = models.OrderProduct.objects.filter(order__user=self.request.user)
-		context['completed_orders'] = models.OldOrder.objects.filter(user=self.request.user, context=1)
 		context['notifications'] = self.get_notification()
 
 		return context
@@ -435,19 +487,110 @@ class PersonalAccountView(UpdateView):
 		user = self.request.user
 		notification = []
 
-		if user.notification != '':
-			notification.append(user.notification)
-
 		if user.is_company:
 			company = models.Company.objects.get(user=user)
 			if company.notification != '':
 				notification.append(company.notification)
 
+			if company.moderator_message != '':
+				notification.append(company.moderator_message)
+
+		else:
+			if user.notification != '':
+				notification.append(user.notification)
+
 		return notification
+
+	def form_valid(self, form):
+		self.save()
+		return super().form_valid(form)
+
+	def save(self):
+		if self.request.POST.get('form_name') == 'user':
+			user = get_object_or_404(models.User, id=self.request.user.id)
+			user.first_name = self.request.POST.get('first_name')
+			user.last_name = self.request.POST.get('last_name')
+			user.phone_number = self.request.POST.get('phone_number')
+			user.company_name = self.request.POST.get('company_name')
+			user.save()
+
+		elif self.request.POST.get('form_name') == 'company':
+			company = get_object_or_404(models.Company, user_id=self.request.user.id)
+
+			if self.request.FILES.get('logo') is not None:
+				company.logo = self.request.FILES.get('logo')
+
+			if self.request.POST.get('address') is not None:
+				company.addresses = dict(self.request.POST).get('address')
+			else:
+				company.addresses = []
+
+			company.save()
+
+
+class OrdersListView(TemplateView):
+	template_name = 'account_pages/orders_list.html'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+
+		context['new_orders'] = models.OrderDetail.objects.filter(order__user=self.request.user, status=1)[::-1]
+		context['executable_orders'] = self.get_executable_orders()
+		context['completed_orders'] = models.OldOrder.objects.filter(user=self.request.user)
+
+		return context
+
+	def get_executable_orders(self):
+		result = []
+		order_detail_list = models.OrderDetail.objects.filter(
+			order__user=self.request.user
+		).exclude(status=1).exclude(status=5)
+
+		for order_detail in order_detail_list[::-1]:
+			order_data = [order_detail.order.id, order_detail.datetime.date, order_detail.status, 0, []]
+			executor_list = models.OrderExecution.objects.filter(order__id=order_detail.order.id)
+
+			for executor in executor_list:
+				if executor.company.logo == '':
+					logo = '/static/image/none_img.png'
+				else:
+					logo = executor.company.logo.url
+
+				company_data = [
+					logo,
+					executor.company.user.company_name,
+					executor.company.user.phone_number,
+					executor.company.user.email,
+					executor.company.addresses,
+					executor.status,
+					dict(),
+					executor.id
+				]
+
+				for prod in executor.order_products.items():
+					items = []
+					price = 0
+
+					for item in prod[1]:
+						price += item[2]
+						items.append((
+							item[0],
+							order_detail.address_and_deadline['items'][int(item[1])][0],
+							'%s %s' % (
+								order_detail.address_and_deadline['items'][int(item[1])][1],
+								order_detail.address_and_deadline['items'][int(item[1])][2]
+							)
+						))
+
+					order_data[3] += price
+					company_data[6].update({prod[0]: (price, items)})
+				order_data[4].append(company_data)
+			result.append(order_data)
+		return result
 
 
 class BecomeCompanyView(FormView):
-	template_name = 'account/become_company.html'
+	template_name = 'account_pages/become_company.html'
 	form_class = forms.BecomeCompanyForm
 	success_url = '/personal_account/'
 
@@ -460,15 +603,17 @@ class BecomeCompanyView(FormView):
 		company = models.Company(
 			user=user,
 			inn=self.request.POST.get('inn'),
-			addresses=self.request.POST.get('addresses').split(', ')
+			addresses=[]
 		)
+		company.save()
+		user.company_name = self.request.POST.get('company_name')
+		user.phone_number = self.request.POST.get('phone_number')
 		user.is_company = True
 		user.save()
-		company.save()
 
 
 class UpdateCompanyView(UpdateView):
-	template_name = 'account/become_company.html'
+	template_name = 'account_pages/become_company.html'
 	model = models.Company
 	fields = ['addresses', 'inn', 'company_files']
 	success_url = '/personal_account/'
@@ -486,7 +631,7 @@ class UpdateCompanyView(UpdateView):
 
 
 class AdminPanelView(FormView):
-	template_name = 'account/admin_panel.html'
+	template_name = 'account_pages/admin_panel.html'
 	form_class = forms.AdminPanelForm
 	success_url = '/admin_panel/'
 
@@ -516,17 +661,18 @@ def delete_notification_view(request):
 	return HttpResponseRedirect('/personal_account/')
 
 
-def set_order_status_view(request, order_id, status):
-	status = int(status)
-	order_handler.set_order_status(order_id, status)
-	return HttpResponseRedirect('/personal_account/')
+def set_order_status_view(request, ord_exec_id):
+	order_handler.set_order_execution_status(int(ord_exec_id))
+	if request.user.is_company:
+		return HttpResponseRedirect('/new_orders/')
+	return HttpResponseRedirect('/orders/')
 
 
 def delete_order_view(request, order_id, context):
 	order_handler.delete_order(order_id, context)
 	if request.user.is_company:
 		return HttpResponseRedirect('/new_orders/')
-	return HttpResponseRedirect('/personal_account/')
+	return HttpResponseRedirect('/orders/')
 
 
 def repeat_order_view(request, order_id):
@@ -535,7 +681,7 @@ def repeat_order_view(request, order_id):
 
 
 def delete_product_in_cart_view(request, product_id):
-	obj = get_object_or_404(models.ShoppingCart, pk=product_id, user=request.user)
+	obj = get_object_or_404(models.ShoppingCart, id=product_id, user=request.user)
 	obj.delete()
 	return HttpResponseRedirect('/shopping_cart/')
 
@@ -568,19 +714,26 @@ def create_product_view(request):
 	return HttpResponseRedirect('/products/')
 
 
+def choose_offer_view(request, order_id, offer):
+	if request.user == get_object_or_404(models.Order, id=int(order_id)).user:
+		order_handler.choose_offer(int(order_id), int(offer))
+		return HttpResponseRedirect('/orders/#add_offer')
+	else:
+		return HttpResponseRedirect('/orders/')
+
+
 def clear_cart(user):
 	products = models.ShoppingCart.objects.filter(user=user)
 	for product in products:
 		product.delete()
 
 
-def get_characteristic_list(kwargs):
+def get_characteristic_list(kwargs, product=None):
 	slug = kwargs.get('slug')
 
-	if slug is None:
-		return None
+	if slug is not None:
+		product = models.Product.objects.get(slug=slug)
 
-	product = models.Product.objects.get(slug=slug)
 	characteristics = models.ProductCharacteristics.objects.get(product=product)
 	char_list = [x for x in characteristics.__dict__.items()]
 	characteristic_list = []

@@ -1,0 +1,62 @@
+{% extends 'base_templates.html' %}
+{% load base_functions %}
+
+{% block title %}PrintoPlace - Оформление заказа{% endblock %}
+{% block content_class %}bg-white h-100-60{% endblock %}
+{% block content %}
+<!-- Login form -->
+<div class="py-5">
+	<div class="container">
+		<h3 class="text-secondary pb-4 pl-3">Список предложений для заказа №{{ order_id }}</h3>
+		<div style="min-height: 70vh;">
+		{% for proposal in proposals %}
+
+			{% if proposal.2 == 0 %}
+				<h4 class="text-secondary">Лучшее предложение</h4>
+			{% elif proposal.3 == 1 %}
+				<h4 class="text-secondary mt-3">Частичные предложения</h4>
+			{% else %}
+				<h4 class="text-secondary mt-3">Остальные предложения</h4>
+			{% endif %}
+
+			<div class="border border-secondary rounded py-3 px-4 mb-2">
+			{% for company in proposal.0.items %}
+				<h5 class="text-secondary mb-3">{{ company.0 }}</h5>
+
+				{% for product in company.1.items %}
+					<div class="mb-3">
+						{% get_one_product product.0 as prod %}
+						<h6 class="pl-3">{{ prod.product.name }}</h6>
+						{% for item in product.1 %}
+						<div class="row text-secondary">
+							<div class="col-2 text-center">{{ item.0 }} шт</div>
+							<div class="col-7">
+								<i class="fas fa-map-marker-alt text-primary"></i> {{ item.1.1 }}
+							</div>
+							<div class="col-3 text-center">{{ item.2 }} руб</div>
+						</div>
+						{% endfor %}
+					</div>
+				{% endfor %}
+
+			{% endfor %}
+				{% if proposal.3 == 1 %}
+				<p class="text-danger">Некоторые позиции отсутствуют!</p>
+				{% endif %}
+				<div class="d-flex justify-content-between mt-4">
+					<h5 class="text-primary">Сумма заказа: {{ proposal.1 }} руб</h5>
+					<a href="{% url 'choose_offer' order_id proposal.2 %}" class="btn btn-primary">Выбрать</a>
+				</div>
+			</div>
+
+		{% empty %}
+			<h4 class="text-secondary text-center">Предложений нет</h4>
+		{% endfor %}
+		</div>
+
+		<div class="row px-3 mt-4">
+			<a href="{% url 'personal_account' %}" class="btn btn-outline-my"><i class="fas fa-angle-left"></i> Назад</a>
+		</div>
+	</div>
+</div>
+{% endblock %}

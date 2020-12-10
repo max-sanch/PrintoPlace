@@ -1,0 +1,338 @@
+{% extends 'base_templates.html' %}
+{% load base_functions %}
+{% load static %}
+
+{% block title %}PrintoPlace - Личный кабинет{% endblock %}
+{% block content %}
+<!-- New orders -->
+<div>
+	<div class="container pt-5" style="min-height: 76vh;">
+		<div class="row mt-3">
+			<div class="col-12 col-md-3 mb-4">
+				<div class="nav row nav-pills px-3" role="tablist" aria-orientation="vertical">
+					<a class="nav-link col-12" href="{% url 'personal_account' %}">Мой профиль</a>
+					<a class="nav-link col-12" id="catl_tab" data-toggle="pill" href="#catl" role="tab" aria-controls="catl" aria-selected="false">Мой каталог</a>
+					<a class="nav-link col-12 active" id="nord_tab" data-toggle="pill" href="#nord" role="tab" aria-controls="nord" aria-selected="false">Новые заказы</a>
+				</div>
+			</div>
+			<div class="col-12 col-md-9">
+				<div class="tab-content">
+					<div class="tab-pane fade" id="catl" role="tabpanel" aria-labelledby="catl_tab">
+						{% if company.is_verification %}
+						<a href="{% url 'add_product_list' %}" type="button" class="btn btn-outline-secondary w-100 mb-3">Добавить новый продукт</a>
+
+						{% for one_prod in products %}
+						<div class="border border-secondary rounded p-3 mb-3">
+							<div class="row">
+								<div class="col-12 col-lg-3 text-center">
+									<a href="{% url 'one_product' one_prod.product.slug %}">
+										<img src="{% get_static_prefix %}image/icon/{{ one_prod.product.slug }}.svg">
+									</a>
+								</div>
+								<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+									<div class="text-secondary">
+										<h4>{{ one_prod.product.name }}</h4>
+										<p>
+											{% for char in one_prod.characteristics.items %}
+												{{ char.0 }}:
+												{% for value in char.1 %}
+													{{ value }}{% if value == char.1|last %}; {% else %}, {% endif %}
+												{% endfor %}
+											{% endfor %}
+										</p>
+									</div>
+									<div class="d-flex justify-content-between text-secondary">
+										<a href="#" type="button" class="btn btn-outline-danger">Удалить</a>
+										<a href="#" type="button" class="btn btn-outline-my">Изменить</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% empty %}
+						<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+						{% endfor %}
+
+						{% else %}
+						<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
+						{% endif %}
+					</div>
+
+					<div class="tab-pane fade show active" id="nord" role="tabpanel" aria-labelledby="nord_tab">
+						<nav>
+							<div class="nav nav-tabs" id="nav-tab1" role="tablist">
+								<a class="nav-link active" id="actv-tab" data-toggle="tab" href="#actv" role="tab" aria-controls="actv" aria-selected="true">Активные</a>
+								<a class="nav-link" id="copl-tab" data-toggle="tab" href="#copl" role="tab" aria-controls="copl" aria-selected="false">В работе</a>
+								<a class="nav-link" id="cncl-tab" data-toggle="tab" href="#cncl" role="tab" aria-controls="cncl" aria-selected="false">Завершённые</a>
+							</div>
+						</nav>
+						<div class="tab-content">
+							<div class="tab-pane fade show active p-4" id="actv" role="tabpanel" aria-labelledby="actv-tab">
+								{% if company.is_verification %}
+								{% for order in new_orders %}
+
+								{% if order.1 == 1 %}
+								<div class="mb-4">
+									<form method="post">
+										{% csrf_token %}
+										<input type="hidden" name="next" value="">
+										<input type="hidden" name="order" value="{{ order.0.order.id }}">
+										<div class="row">
+											<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.0.order.id }} от {{ order.0.datetime.date }}</h5>
+											{% get_status_company order.status as status %}
+											<h5 class="col-12 col-lg-5 text-success text-right">{{ status }}</h5>
+										</div>
+
+										<div class="d-flex justify-content-between mb-2">
+											<button type="button" class="btn btn-outline-secondary btn-sm">Адреса</button>
+											{% for error in form.errors.items %}
+												{% int_to_str order.0.order.id as order_id %}
+												{% if error.0 == order_id %}
+												<p class="text-danger h6 mt-3">{{ error.1 }}</p>
+												{% endif %}
+											{% endfor %}
+											<button type="button" class="btn btn-outline-secondary btn-sm">Выбрать всё</button>
+										</div>
+
+										{% get_products order.0.order.id as products %}
+										{% for one_prod in products %}
+										<div class="border border-secondary rounded p-3 mb-2">
+											<div class="row">
+												<div class="col-12 col-lg-12">
+													<div class="text-secondary">
+
+														<div class="form-check d-flex">
+															<input class="form-check-input position-static mt-2 mr-2" type="checkbox" id="blankCheckbox"
+																		 name="prod" value="{{ one_prod.id }}">
+															<h4>{{ one_prod.product.name }}</h4>
+														</div>
+														<p>
+															{% for char in one_prod.characteristics.items %}
+																{{ char.0 }}: {{ char.1 }}
+															{% endfor %}
+														</p>
+													</div>
+
+													<div>
+														{% get_address_and_data one_prod.id as addresses %}
+														{% for address in addresses %}
+														<input type="hidden" name="address-{{ one_prod.id }}" value="{{ address.4 }}">
+														<div class="row">
+															<div class="form-group col-2">
+																<input class="form-control form-control-sm" type="number" name="count-{{ one_prod.id }}"
+																			 value="{{ address.0 }}" min="0" max="{{ address.0 }}" required>
+															</div>
+															<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ address.1 }}</small></div>
+															<div class="col-3 text-secondary text-center"><small>до {{ address.2 }} {{ address.3 }}</small></div>
+														</div>
+														{% endfor %}
+													</div>
+												</div>
+											</div>
+
+											<div class="d-flex justify-content-between pr-3">
+												<p class="text-secondary m-0">Всего: {{ one_prod.total_count }} шт</p>
+												<p class="text-secondary m-0">{{ one_prod.price }}р</p>
+											</div>
+										</div>
+										{% endfor %}
+										<div class="d-flex justify-content-between mb-2">
+											<div class="custom-control custom-switch">
+												<input type="checkbox" class="custom-control-input" id="customSwitch{{ order.order.id }}"
+															 name="partially" checked>
+												<label class="custom-control-label" for="customSwitch{{ order.order.id }}">Могу выполнить частично</label>
+											</div>
+											<h5 class="text-primary">Итого: {{ order.0.order.price }}р</h5>
+										</div>
+										<div class="d-flex justify-content-end">
+											<a href="{% url 'delete_order' order.0.order.id 3 %}" class="btn btn-outline-danger btn-sm mr-3">Отказать</a>
+											<button type="submit" class="btn btn-primary btn-sm">Отправить предложение</button>
+										</div>
+									</form>
+								</div>
+								{% else %}
+								<div class="mb-4">
+									<div class="row">
+										{% get_order_date order.0.order.id as date %}
+										<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.0.order.id }} от {{ date.date }}</h5>
+										<h5 class="col-12 col-lg-5 text-success text-right">Заявка отправлена</h5>
+									</div>
+
+									{% for product in order.0.order_products.items %}
+									{% get_one_product product.0 as one_prod %}
+									<div class="border border-secondary rounded p-3 mb-2">
+										<div class="row">
+											<div class="col-12 col-lg-12">
+												<div class="text-secondary">
+													<div class="d-flex">
+														<h4>{{ one_prod.product.name }}</h4>
+														<h5 class="text-secondary ml-auto my-auto">{{ one_prod.price }} руб</h5>
+													</div>
+													<p>
+														{% for char in one_prod.characteristics.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+													</p>
+												</div>
+
+												<div>
+													{% for item in product.1 %}
+													{% get_one_address_and_date item.1 order.0.order.id as address %}
+													<div class="row">
+														<div class="col-2 text-secondary text-center">{{ item.0 }} шт</div>
+														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ address.0 }}</small></div>
+														<div class="col-3 text-secondary text-center"><small>до {{ address.1 }} {{ address.2 }}</small></div>
+													</div>
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									<div class="mb-2">
+										<h5 class="text-primary text-right">Итого: {{ order.0.order.price }}р</h5>
+									</div>
+								</div>
+								{% endif %}
+
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
+								{% else %}
+								<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
+								{% endif %}
+							</div>
+
+							<div class="tab-pane fade p-4" id="copl" role="tabpanel" aria-labelledby="copl-tab">
+								{% if company.is_verification %}
+								{% for order in accepted_orders %}
+								<div class="mb-2">
+									<div class="row">
+										<a class="col-12 col-lg-7 text-secondary h5"
+											 data-toggle="collapse" href="#ord-accept{{ order.0 }}"
+											 role="button" aria-expanded="false"
+											 aria-controls="ord-accept{{ order.0 }}">
+											Заказ №{{ order.0 }} от {{ order.1 }} <i class="fas fa-angle-down"></i>
+										</a>
+										{% get_status_company order.2 as status %}
+										<h5 class="col-12 col-lg-5 {% if order.2 == 2 %}text-warning{% else %}text-success{% endif %} text-right">{{ status }}</h5>
+									</div>
+								</div>
+
+								<div class="collapse p-2" id="ord-accept{{ order.0 }}">
+									<h6>Вы можете связаться с клиентом по любым вопросам. Договоритесь о способе оплаты и доставке.</h6>
+									<div class="row bg-light p-1 mb-3">
+										<div class="col-12 col-lg-6">
+											<div class="d-flex">
+												<h6>Телефон:</h6>
+												<h6 class="text-primary ml-4">{{ order.4.phone_number }}</h6>
+											</div>
+											<div class="d-flex">
+												<h6>Email:</h6>
+												<h6 class="text-primary ml-4">{{ order.4.email }}</h6>
+											</div>
+										</div>
+										<div class="col-12 col-lg-6">
+											<div class="d-flex">
+												<h6>Контактное лицо:</h6>
+												<h6 class="text-primary ml-4">{{ order.4.full_name }}</h6>
+											</div>
+										</div>
+									</div>
+
+									{% for product in order.5 %}
+										<div class="border border-secondary rounded p-3 mb-2">
+											<div class="row">
+												<div class="col-12 col-lg-2">
+													<a href="{{ product.0 }}">
+														<img src="{{ product.0 }}" class="rounded d-block mx-auto" style="max-width: 100px; max-height: 100px;">
+													</a>
+												</div>
+												<div class="col-12 col-lg-10 pl-3 pl-lg-0">
+													<div class="d-flex">
+														<h5 class="text-secondary">{{ product.1 }}</h5>
+														<h6 class="ml-auto">{{ product.2 }} руб</h6>
+													</div>
+													<p class="text-secondary">
+														<small>
+														{% for char in product.3.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+														</small>
+													</p>
+													<div class="row">
+														{% for item in product.4 %}
+														<div class="col-2 text-secondary text-center"><small>{{ item.0 }} шт</small></div>
+														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ item.1 }}</small></div>
+														<div class="col-3 text-secondary"><small>до {{ item.2 }}</small></div>
+														{% endfor %}
+													</div>
+												</div>
+											</div>
+										</div>
+									{% endfor %}
+
+									<div class="d-flex">
+										<h5>Сумма заказа: {{ order.3 }} руб</h5>
+										{% if order.2 < 4 %}
+										<a href="{% url 'order_handler' order.6 %}" class="btn btn-primary ml-auto">
+											{% if order.2 == 2 %}
+											Взять в работу
+											{% elif order.2 == 3 %}
+											Заказ исполнен
+											{% endif %}
+										</a>
+										{% endif %}
+										{% if order.2 == 5 %}
+										<p class="text-danger ml-auto">Ожидание остальных исполнителей</p>
+										{% endif %}
+									</div>
+								</div>
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
+								{% else %}
+								<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
+								{% endif %}
+							</div>
+
+							<div class="tab-pane fade p-4" id="cncl" role="tabpanel" aria-labelledby="cncl-tab">
+								{% if company.is_verification %}
+								{% for order in old_orders %}
+
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
+								{% else %}
+								<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include 'includes/contact_info.html' %}
+
+{% include 'includes/footer.html' %}
+
+<!-- Add proposal model -->
+<div class="modal fade show" id="add_proposal_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<h1 class="text-center text-primary my-3"><i class="fas fa-check-circle"></i></h1>
+				<h5 class="text-center">Ваша заявка отправлена клиенту.</h5>
+				<p class="text-center mb-4">В случае подтверждения заказа вам придет уведомление на электронную почту.</p>
+				<div class="d-flex mb-3">
+					<a href="{% url 'new_orders' %}" class="btn btn-primary mx-auto">Перейти к заявке</a>
+				</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

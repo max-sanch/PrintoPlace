@@ -1,0 +1,278 @@
+{% extends 'base_templates.html' %}
+{% load base_functions %}
+{% load static %}
+
+{% block title %}PrintoPlace - Заказы{% endblock %}
+{% block content %}
+<!-- Personal Account -->
+<div>
+	<div class="container pt-5" style="min-height: 76vh;">
+		<div class="row mt-3">
+			<div class="col-12 col-md-3 mb-4">
+				<div class="nav row nav-pills px-3">
+					<a class="nav-link col-12" href="{% url 'personal_account' %}">Мой профиль</a>
+					<a class="nav-link col-12 active" href="{% url 'orders' %}">Мои заказы</a>
+				</div>
+			</div>
+			<div class="col-12 col-md-9">
+				<div>
+					<nav>
+						<div class="nav nav-tabs" id="nav-tab1" role="tablist">
+							<a class="nav-link active" id="actv-tab" data-toggle="tab" href="#actv" role="tab" aria-controls="actv" aria-selected="true">Активные</a>
+							<a class="nav-link" id="copl-tab" data-toggle="tab" href="#copl" role="tab" aria-controls="copl" aria-selected="false">В работе</a>
+							<a class="nav-link" id="cncl-tab" data-toggle="tab" href="#cncl" role="tab" aria-controls="cncl" aria-selected="false">Завершённые</a>
+						</div>
+					</nav>
+					<div class="tab-content">
+							<div class="tab-pane fade show active p-4" id="actv" role="tabpanel" aria-labelledby="actv-tab">
+								{% for order in new_orders %}
+								<div class="mb-3">
+									{% get_len_proposal order.order.id as len_proposal %}
+									<div class="row">
+										<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.order.id }} от {{ order.datetime.date }}</h5>
+										{% if len_proposal > 0 %}
+											<h5 class="col-12 col-lg-5 text-success text-right">Выбор предложения</h5>
+										{% else %}
+											{% get_status_client order.status as status %}
+											<h5 class="col-12 col-lg-5 text-warning text-right">{{ status }}</h5>
+										{% endif %}
+									</div>
+
+									{% if len_proposal > 0 %}
+									<a href="{% url 'proposals' order.order.id %}" type="button" class="btn btn-primary btn-sm mb-3">
+										Смотреть предложения <span class="badge badge-light">{{ len_proposal }}</span>
+									</a>
+									{% endif %}
+
+									{% get_products order.order.id as prod_orders %}
+									{% for one_prod in prod_orders %}
+									<div class="border border-secondary rounded p-3 mb-3">
+										<div class="row">
+											<div class="col-12 col-lg-3">
+												<img src="{{ one_prod.design_url }}" class="rounded d-block mx-auto" style="max-width: 160px; max-height: 160px;">
+											</div>
+											<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+												<div class="text-secondary">
+													<h4>{{ one_prod.product.name }}</h4>
+													<p>
+														{% for char in one_prod.characteristics.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+													</p>
+												</div>
+
+												<div>
+													{% get_address_and_data one_prod.id as addresses %}
+													{% for address in addresses %}
+													<div class="row">
+														<div class="col-2 text-secondary text-center"><small>{{ address.0 }} шт</small></div>
+														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ address.1 }}</small></div>
+														<div class="col-3 text-secondary"><small>до {{ address.2 }} {{ address.3 }}</small></div>
+													</div>
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									{% if order.status == 1 %}
+									<div class="d-flex justify-content-end">
+										<button onclick="cancel_order({{ order.order.id }})" class="btn btn-outline-danger">Отменить</button>
+									</div>
+									{% elif order.status == 2 %}
+									<div class="d-flex justify-content-end">
+										<a href="{% url 'delete_order' order.order.id 4 %}" class="btn btn-outline-danger mr-3">Отменить</a>
+										<a href="{% url 'payment' order.order.id %}" class="btn btn-outline-my">Оплатить</a>
+									</div>
+									{% elif order.status == 4 %}
+									<div class="d-flex justify-content-end">
+										<a href="{% url 'order_handler' order.order.id order.status %}" class="btn btn-outline-my">Прибыл</a>
+									</div>
+									{% endif %}
+								</div>
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
+							</div>
+
+							<div class="tab-pane fade p-4" id="copl" role="tabpanel" aria-labelledby="copl-tab">
+								{% for order in executable_orders %}
+								<div class="mb-1">
+									<div class="row">
+										<a class="col-12 col-lg-7 text-secondary h5" data-toggle="collapse" href="#ord{{ order.0 }}" role="button" aria-expanded="false" aria-controls="ord{{ order.0 }}">
+											Заказ №{{ order.0 }} от {{ order.1 }} <i class="fas fa-angle-down"></i>
+										</a>
+										{% get_status_client order.2 as status %}
+										<h5 class="col-12 col-lg-5 {% if order.2 == 2 %}text-warning{% else %}text-success{% endif %} text-right">{{ status }}</h5>
+									</div>
+								</div>
+
+								<div class="collapse p-2 pt-0" id="ord{{ order.0 }}">
+<!--									<button onclick="cancel_order({{ order.order.id }})" class="btn btn-link text-danger p-0">Отменить заказ</button>-->
+									{% for company in order.4 %}
+									<div class="mb-4">
+										<div class="row">
+											<div class="col-2 col-lg-1">
+												<img src="{{ company.0 }}" class="rounded" style="weight: 20px; height: 20px;">
+											</div>
+											<h5 class="col-10 col-lg-6 text-secondary mb-3">{{ company.1 }}</h5>
+											{% get_status_client company.5 as status %}
+											<h6 class="col-12 col-lg-5 {% if company.5 == 2 %}text-warning{% else %}text-success{% endif %} text-right">{{ status }}</h6>
+										</div>
+										<div class="row bg-light p-1 mb-3">
+											<div class="col-12 col-lg-6">
+												<div class="d-flex">
+													<h6>Телефон:</h6>
+													<h6 class="text-primary ml-4">{{ company.2 }}</h6>
+												</div>
+												<div class="d-flex">
+													<h6>Email:</h6>
+													<h6 class="text-primary ml-4">{{ company.3 }}</h6>
+												</div>
+											</div>
+											<div class="col-12 col-lg-6">
+												<a class="text-dark h6" data-toggle="collapse" href="#q{{ company.2|cut:'+' }}" role="button" aria-expanded="false" aria-controls="q{{ company.2|cut:'+' }}">
+													Адреса <i class="fas fa-angle-down"></i>
+												</a>
+												<div class="collapse" id="q{{ company.2|cut:'+' }}">
+													{% for address in company.4 %}
+													<p class="text-primary mb-0"><small>{{ address }}</small></p>
+													{% empty %}
+													<p class="text-primary">Не указано</p>
+													{% endfor %}
+												</div>
+											</div>
+										</div>
+										{% for product in company.6.items %}
+											<div class="border border-secondary rounded p-3 mb-2">
+												<div class="d-flex">
+													{% get_one_product product.0 as prod %}
+													<h5 class="text-secondary">{{ prod.product.name }}</h5>
+													<h6 class="ml-auto">{{ product.1.0 }} руб</h6>
+												</div>
+												{% for item in product.1.1 %}
+												<div class="row text-secondary">
+													<div class="col-2 text-center">{{ item.0 }} шт</div>
+													<div class="col-7">
+														<i class="fas fa-map-marker-alt text-primary"></i> <small>{{ item.1 }}</small>
+													</div>
+													<div class="col-3 text-center">до {{ item.2 }}</div>
+												</div>
+												{% endfor %}
+											</div>
+
+										{% endfor %}
+										{% if company.5 == 4 %}
+										<div class="d-flex">
+											<a href="{% url 'order_handler' company.7 %}" class="btn btn-primary btn-sm ml-auto">Заказ получен</a>
+										</div>
+										{% endif %}
+									</div>
+									{% endfor %}
+									<div class="d-flex mt-3">
+										<h5 class="text-primary ml-auto">Итого: {{ order.3 }} руб</h5>
+									</div>
+								</div>
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
+							</div>
+
+							<div class="tab-pane fade p-4" id="cncl" role="tabpanel" aria-labelledby="cncl-tab">
+								{% for order in completed_orders %}
+								<div class="mb-3">
+									<div class="row">
+										<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.order.id }} от {{ order.datetime.date }}</h5>
+										{% get_status_client order.status as status %}
+										<h5 class="col-12 col-lg-5 text-success text-right">{{ status }}</h5>
+									</div>
+
+									{% for one_prod in order.products.products %}
+									{% get_products one_prod.product as product %}
+									<div class="border border-secondary rounded p-3 mb-3">
+										<div class="row">
+											<div class="col-12 col-lg-3">
+												<img src="{{ one_prod.design }}" class="rounded" style="max-width: 160px; max-height: 160px;">
+											</div>
+											<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+												<div class="text-secondary">
+													<h4>{{ product.name }}</h4>
+													<p>
+														{% for char in one_prod.characteristics.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+													</p>
+												</div>
+												<h5 class="text-secondary">{% mult product.price one_prod.count %}p ({{ one_prod.count }}шт)</h5>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									<div class="d-flex justify-content-end text-secondary">
+										<a href="{% url 'repeat_order' order.id %}" type="button" class="btn btn-outline-my">Повторить</a>
+									</div>
+								</div>
+								{% empty %}
+								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+								{% endfor %}
+							</div>
+						</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include 'includes/contact_info.html' %}
+
+{% include 'includes/footer.html' %}
+
+<!-- Add order model -->
+<div class="modal fade show" id="add_order_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<h1 class="text-center text-primary my-3"><i class="fas fa-check-circle"></i></h1>
+				<h5 class="text-center">Ваша заявка отправлена в полиграфические компании.</h5>
+				<p class="text-center mb-4">Ответы на заявку вы можете посмотреть в личном кабинете. Информация о поступлении новых ответов будет направляться на вашу электронную почту.</p>
+				<div class="d-flex mb-3">
+					<a href="{% url 'orders' %}" class="btn btn-primary mx-auto">Перейти к заявке</a>
+				</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel order model -->
+<div class="modal fade show" id="cancel_order_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 350px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<h5 class="text-center mt-2 mb-4">Вы действительно хотите отменить заказ?</h5>
+				<div class="d-flex px-3">
+					<a href="{% url 'orders' %}" class="btn btn-primary">Не отменять</a>
+					<a href="#" class="btn btn-primary ml-auto" id="cancel_order_url">Отменить</a>
+				</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add order model -->
+<div class="modal fade show" id="add_offer_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<h1 class="text-center text-primary my-3"><i class="fas fa-check-circle"></i></h1>
+				<h5 class="text-center mb-4">Ваш заказ отправлен на исполнение в полиграфические компании.</h5>
+				<div class="d-flex mb-3">
+					<a href="{% url 'orders' %}" class="btn btn-primary mx-auto">Перейти к заявке</a>
+				</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

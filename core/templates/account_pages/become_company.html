@@ -37,7 +37,7 @@
 						<div class="">
 							<input type="text" name="company_name" maxlength="64"
 										 class="textinput textInput form-control"
-										 id="id_company_name">
+										 id="id_company_name" value="{{ request.user.company_name }}">
 						</div>
 					</div>
 
@@ -47,17 +47,8 @@
 						</label>
 						<div class="">
 							<input type="tel" name="phone_number" maxlength="12"
-										 class="textinput textInput form-control"
-										 id="id_phone_number">
-						</div>
-					</div>
-
-					<div id="div_id_addresses" class="form-group">
-						<label for="id_addresses" class=" requiredField">
-							Список адресов<span class="asteriskField">*</span>
-						</label>
-						<div>
-							<input type="text" name="addresses" class="textinput textInput form-control" required="" id="id_addresses">
+										 class="textinput textInput form-control" id="id_phone_number"
+										 value="{{ request.user.phone_number }}">
 						</div>
 					</div>
 

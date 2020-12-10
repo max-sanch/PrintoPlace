@@ -22,7 +22,7 @@
 							<div class="text-secondary">
 								<div class="d-flex justify-content-between text-secondary">
 									<h4>{{ one_prod.product.name }}</h4>
-									<a href="#" class="text-secondary"><i class="far fa-edit"></i> Изменить</a>
+									<a href="{% url 'product_update' one_prod.id %}" class="text-secondary"><i class="far fa-edit"></i> Изменить</a>
 								</div>
 								<p class="text-truncate" style="max-width: 400px;"
 									 title="{% for char in one_prod.characteristics.items %}{{ char.0 }}: {{ char.1 }}; {% endfor %}">

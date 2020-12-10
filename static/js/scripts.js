@@ -1,11 +1,65 @@
 $(document).ready(function () {
-  $("#anythingSearch").on("keyup", function () {
-    var value = $(this).val().toLowerCase();
-    $("#myDIV *").filter(function () {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    $("#anythingSearch").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myDIV *").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
     });
-  });
 });
+
+function help_search() {
+    var a, i;
+    var input = document.getElementById("search");
+    var filter = input.value.toUpperCase();
+    var div = document.getElementById("question_list");
+    var qList = div.getElementsByClassName("pb-2 ml-5");
+
+    for (i = 0; i < qList.length; i++) {
+        a = qList[i].getElementsByTagName("div")[0].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            qList[i].style.display = "";
+        } else {
+            qList[i].style.display = "none";
+        }
+    }
+}
+
+function nav_search() {
+    var input = document.getElementById("main_search");
+    document.getElementById("btn_search").href = '/help/#' + input.value;
+}
+
+if (window.location.pathname == '/help/') {
+    var hash = window.location.hash;
+    document.getElementById("search").value = decodeURI(hash.slice(1));
+    help_search();
+}
+
+if (window.location.pathname.slice(0, 9) == '/product/') {
+    if (window.location.hash == '#successful') {
+        document.getElementById("successful_model").style.display = "block";
+    }
+}
+
+if (window.location.pathname == '/new_orders/') {
+    if (window.location.hash == '#successful') {
+        document.getElementById("add_proposal_model").style.display = "block";
+    }
+}
+
+if (window.location.pathname == '/orders/') {
+    if (window.location.hash == '#add_order') {
+        document.getElementById("add_order_model").style.display = "block";
+    }
+    if (window.location.hash == '#add_offer') {
+        document.getElementById("add_offer_model").style.display = "block";
+    }
+}
+
+function cancel_order(order_id) {
+    document.getElementById("cancel_order_url").href = "/delete_order/" + order_id + "/4"
+    document.getElementById("cancel_order_model").style.display = "block";
+}
 
 function search_inn() {
     var val = document.getElementById('id_inn').value;
@@ -84,7 +138,7 @@ function add_address_company() {
     var div = document.createElement('div');
     div.className = "form-inline";
     div.id = 'div-address-' + ADDRESS_ID;
-    div.innerHTML = ['<input type="text" class="form-control col-10 col-lg-8" name="address">',
+    div.innerHTML = ['<input type="text" class="form-control col-10 col-lg-8" name="address" required>',
         '<div class="text-secondary col-2 p-2 pt-3 pl-3 h6"><i class="far fa-trash-alt"',
         'onclick="remove_address(', "'div-address-", ADDRESS_ID, "'", ')"></i></div>'].join('');
     ADDRESS_ID += 1;

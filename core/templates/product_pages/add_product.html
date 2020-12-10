@@ -1,50 +1,123 @@
 {% extends 'base_templates.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}PrintoPlace - Добавление товара{% endblock %}
-{% block content_class %}bg-light{% endblock %}
+{% block content_class %}{% endblock %}
 {% block content %}
 <!-- Registration form -->
 <div class="py-5">
 	<div class="container">
-		<div class="text-center mb-4">
-			<h3>Добавление товара</h3>
-		</div>
-		<div class="d-flex justify-content-center">
-			<div class="d-inline-flex p-4 bd-highlight rounded border bg-white">
-				<form method="post" style="width: 25rem;">
-					{% csrf_token %}
-					<input type="hidden" name="next" value="">
-
-					{% for char in characteristics_list %}
-					<div class="form-group">
-						<h4 class="text-secondary">{{ char.0 }}</h4>
-						{% for char_value_list in char.1.items %}
-						{% if char_value_list.0 != 'default' %}
-							<p class="text-secondary">{{ char_value_list.0 }}</p>
-						{% endif %}
-							{% for char_value in char_value_list.1 %}
-
-							<div id="div_id_{{ char.0 }}" class="form-check">
-								<input type="checkbox" name="{{ char.0 }}"
-											 class="checkboxinput form-check-input" value="{{ char_value }}"
-											 id="id_{{ char.0 }}">
-								<label for="id_{{ char.0 }}" class="form-check-label">
-									{{ char_value }}
-								</label>
-							</div>
-
-							{% endfor %}
-						{% endfor %}
+		<div class="row p-3">
+			<div class="col-12 col-lg-2 p-0">
+				<img src="{% get_static_prefix %}image/icon/{{ product.slug }}.svg"
+						 style="filter: hue-rotate(175deg) saturate(15);">
+			</div>
+			<div class="col-12 col-lg-10">
+				<h2 class="text-secondary my-4">{{ product.name }}</h2>
+				<p class="text-secondary">{{ product.description }}</p>
+			</div>
+			<div class="mt-4">
+				<h4 class="text-secondary mb-3">Стоимость</h4>
+				<div id="price-list">
+					<div class="row text-secondary">
+						<p class="col-1">от</p>
+						<div class="col-2 form-group p-0">
+							<input type="number" class="form-control form-control-sm" value="1" disabled required>
+						</div>
+						<p class="col-1">шт</p>
+						<div class="col-3 form-group pr-0">
+							<input type="number" class="form-control form-control-sm" required>
+						</div>
+						<p class="col-2">руб/шт</p>
 					</div>
-					{% endfor %}
-
-					<div class="d-flex justify-content-end mt-4">
-						<button type="submit" class="btn btn-primary">Сохранить</button>
+					<div class="row text-secondary" id="div-address-">
+					<p class="col-1">от</p>
+					<div class="col-2 form-group p-0">
+						<input type="number" class="form-control form-control-sm" required>
 					</div>
-				</form>
+					<p class="col-1">шт</p>
+					<div class="col-3 form-group pr-0">
+						<input type="number" class="form-control form-control-sm" required>
+					</div>
+					<p class="col-2">руб/шт</p>
+					<div class="text-secondary col-2 pl-0">
+						<i class="far fa-trash-alt" onclick="remove_address('div-address-')"></i>
+					</div>
+				</div>
+				</div>
+				<button type="button" class="btn btn-link text-secondary p-0" onclick="add_address_company()">+ ещё</button>
 			</div>
 		</div>
+		<div class="mt-4">
+			<h4 class="text-secondary">Выбор предоставляемых вами параметров товара</h4>
+			<p class="text-secondary">Также укажите изменение цены в зависимости от выбираемого параметра</p>
+			<div class="p-2">
+				{% for char in characteristics_list %}
+				<h5 class="text-secondary">{{ char.0 }}</h5>
+				<div class="text-secondary p-2 mb-2">
+					{% for value_list in char.1.items %}
+						{% if value_list.0 != 'default' %}
+						<h6 class="text-secondary">{{ value_list.0 }}</h6>
+						{% endif %}
+						<div class="row px-4">
+						{% for value in value_list.1 %}
+							<div class="col-12 d-flex">
+								<div id="div_id_{{ char.0 }}" class="form-check pt-1 m-0 mr-4">
+									<input type="checkbox" name="{{ char.0 }}"
+												 class="checkboxinput form-check-input" value="{{ value }}"
+												 id="id_{{ char.0 }}">
+									<label class="form-check-label">{{ value }}</label>
+								</div>
+								<div class="form-group d-flex text-dark m-0">
+									<p class="pt-1 mr-2">+</p>
+									<input type="number" class="form-control form-control-sm">
+									<p class="pt-1 w-100 ml-2">руб/шт</p>
+								</div>
+							</div>
+						{% endfor %}
+						</div>
+					{% endfor %}
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		<button type="submit" class="btn btn-primary">Сохранить</button>
+<!--		<div class="d-flex justify-content-center">-->
+<!--			<div class="d-inline-flex p-4 bd-highlight rounded border bg-white">-->
+<!--				<form method="post" style="width: 25rem;">-->
+<!--					{% csrf_token %}-->
+<!--					<input type="hidden" name="next" value="">-->
+
+<!--					{% for char in characteristics_list %}-->
+<!--					<div class="form-group">-->
+<!--						<h4 class="text-secondary">{{ char.0 }}</h4>-->
+<!--						{% for char_value_list in char.1.items %}-->
+<!--						{% if char_value_list.0 != 'default' %}-->
+<!--							<p class="text-secondary">{{ char_value_list.0 }}</p>-->
+<!--						{% endif %}-->
+<!--							{% for char_value in char_value_list.1 %}-->
+
+<!--							<div id="div_id_{{ char.0 }}" class="form-check">-->
+<!--								<input type="checkbox" name="{{ char.0 }}"-->
+<!--											 class="checkboxinput form-check-input" value="{{ char_value }}"-->
+<!--											 id="id_{{ char.0 }}">-->
+<!--								<label for="id_{{ char.0 }}" class="form-check-label">-->
+<!--									{{ char_value }}-->
+<!--								</label>-->
+<!--							</div>-->
+
+<!--							{% endfor %}-->
+<!--						{% endfor %}-->
+<!--					</div>-->
+<!--					{% endfor %}-->
+
+<!--					<div class="d-flex justify-content-end mt-4">-->
+<!--						<button type="submit" class="btn btn-primary">Сохранить</button>-->
+<!--					</div>-->
+<!--				</form>-->
+<!--			</div>-->
+<!--		</div>-->
 	</div>
 </div>
 {% endblock %}

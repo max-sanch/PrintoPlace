@@ -14,6 +14,8 @@ admin.site.register(models.ShoppingCart)
 admin.site.register(models.OrderProduct)
 admin.site.register(models.OrderDetail)
 admin.site.register(models.ProductCompany)
+admin.site.register(models.OrderExecution)
+admin.site.register(models.OrderProposalTemp)
 admin.site.register(models.ProductCharacteristics)
 admin.site.register(models.OrderExecutionProposal)
 

@@ -1,20 +1,90 @@
-from core.models import OrderExecutionProposal, OrderProduct
+from core.models import OrderExecutionProposal, OrderProposalTemp, OrderDetail, OrderProduct, Order
+from django.shortcuts import get_object_or_404
+
+
+def start(order_id):
+	result = []
+	counter = 0
+	total_price = 0
+	order_detail = OrderDetail.objects.get(order__id=order_id)
+	for data in get_proposals(order_id):
+		proposal = [dict(), 0, counter, 0]
+		counter += 1
+		for company in data:
+			company_name = company[0].company.user.company_name
+			proposal[0].update({company_name: dict()})
+			if company[1] is None:
+				proposal[3] = company[2]
+				for product in company[0].order_products.items():
+					proposal[0][company_name].update({str(product[0]): []})
+					for item in product[1]:
+						if item[0] != 0:
+							address = order_detail.address_and_deadline['items'][item[1]][0]
+							proposal[0][company_name][str(product[0])].append((
+								item[0],
+								(item[1], address),
+								item[2]
+							))
+							total_price += item[2]
+			else:
+				for product in company[1].items():
+					proposal[0][company_name].update({str(product[0]): []})
+					if product[1] is None:
+						order_product = OrderProduct.objects.get(id=int(product[0]))
+						for item in [(x[1], x[0], x[1] * order_product.price) for x in order_product.count_and_address.items()]:
+							address = order_detail.address_and_deadline['items'][item[1]][0]
+							proposal[0][company_name][str(product[0])].append((
+								item[0],
+								(item[1], address),
+								item[2]
+							))
+							total_price += item[2]
+					else:
+						for item in product[1]:
+							order_product = OrderProduct.objects.get(id=int(product[0]))
+							address = order_detail.address_and_deadline['items'][item[0]][0]
+							proposal[0][company_name][str(product[0])].append((
+								item[1],
+								(item[0], address),
+								item[1]*order_product.product.price
+							))
+							total_price += item[1]*order_product.product.price
+
+		proposal[1] = total_price
+		result.append(proposal)
+
+	save_proposal_temp(result, order_id)
+
+	return result
+
+
+def save_proposal_temp(proposal, order_id):
+	OrderProposalTemp.objects.update_or_create(
+		order=get_object_or_404(Order, id=order_id),
+		defaults={
+			'proposal': proposal,
+			'count': len(proposal)
+		}
+	)
 
 
 def get_proposals(order_id):
-	proposals = OrderExecutionProposal.objects.filter(order__id=int(order_id))
-	order_products = OrderProduct.objects.filter(order__id=int(order_id))
+	proposals = OrderExecutionProposal.objects.filter(order__id=order_id)
+	order_products = OrderProduct.objects.filter(order__id=order_id)
 	execution_full_order = []
 	other_proposals = []
 
+	if len(proposals) == 0:
+		return []
+
 	for proposal in proposals:
 		if len(proposal.order_products) != len(order_products):
-			other_proposals.append((proposal, _get_total_count_product(proposal)))
+			other_proposals.append(proposal)
 			continue
 
 		for product in order_products:
-			if product.total_count != sum([x[0] for x in proposal.order_products[str(product.id)]]):
-				other_proposals.append((proposal, _get_total_count_product(proposal)))
+			if product.total_count != _get_count_product(proposal, product.id):
+				other_proposals.append(proposal)
 				break
 		else:
 			if len(execution_full_order) != 0:
@@ -26,39 +96,18 @@ def get_proposals(order_id):
 				execution_full_order.append(proposal)
 
 	if len(execution_full_order) == len(proposals):
-		if len(execution_full_order) > 1:
-			return {'best': (execution_full_order[0], ), 'other': [(x, ) for x in execution_full_order[1:]]}
-		else:
-			return {'best': (execution_full_order[0], ), 'other': ()}
+		return [((x, None, 0),) for x in execution_full_order] + [((x, None, 1),) for x in proposals]
 
 	complete_other_offers = _get_other_proposals(other_proposals, order_products)
 
 	if len(execution_full_order) == 0:
-		if len(complete_other_offers) > 1:
-			return {'best': complete_other_offers[0], 'other': complete_other_offers[1:]}
-		elif len(complete_other_offers) == 1:
-			return {'best': complete_other_offers[0], 'other': ()}
-		else:
-			return {'best': (), 'other': ()}
+		return complete_other_offers + [((x, None, 1),) for x in proposals]
 
-	if len(execution_full_order) > 1:
-		return {
-			'best': (execution_full_order[0], ),
-			'other': [(x, ) for x in execution_full_order[1:]] + complete_other_offers
-		}
-	return {'best': (execution_full_order[0], ), 'other': complete_other_offers}
-
-
-def _get_total_count_product(proposal):
-	result = 0
-	for data in proposal.order_products.values:
-		result += sum([x[0] for x in data])
-	return result
+	return [((x, None, 0),) for x in execution_full_order] + complete_other_offers + [((x, None, 1),) for x in proposals]
 
 
 def _get_other_proposals(proposals, order_products):
 	result = []
-	order_products_dict = _get_dict_order_products(order_products)
 	missing_items = _get_list_missing_items(proposals, order_products)
 	missing_items.sort(key=lambda n: n[0])
 	for x in range(len(missing_items)):
@@ -68,66 +117,78 @@ def _get_other_proposals(proposals, order_products):
 					if product[0] in missing_items[y][1].keys():
 						break
 				else:
-					result.append((missing_items[x][2], missing_items[y][2]))
+					result.append(((missing_items[x][2], None), (missing_items[y][2], missing_items[x][1])))
 					continue
 
-			print(missing_items[x][0])
-			is_add = True
-			for product in missing_items[x][1].items():
-				if not is_add:
-					break
-				if product[1] is None and product[0] in missing_items[y][1].keys():
-					break
-				for item in product:
-					if missing_items[y][2].get(item[1][0]) is None:
-						is_add = False
+			elif missing_items[x][0] != 0:
+				is_add = True
+				for product in missing_items[x][1].items():
+					if product[1] is None and product[0] in missing_items[y][1].keys():
 						break
-					if item[1][1]+missing_items[y][2][item[1][0]] >= order_products_dict[item[0]].total_count:
-						continue
-					is_add = False
-					break
-			else:
-				result.append((missing_items[x][2], missing_items[y][2]))
+
+					for item in product[1]:
+						if missing_items[y][2].order_products.get(product[0]) is None:
+							is_add = False
+							break
+
+						item_id = None
+						product_items = missing_items[y][2].order_products[product[0]]
+
+						for i in product_items:
+							if i[1] == item[0]:
+								item_id = product_items.index(i)
+
+						if item_id is None:
+							is_add = False
+							break
+
+						if item[1] - product_items[item_id][0] > 0:
+							is_add = False
+							break
+
+					if not is_add:
+						break
+				else:
+					result.append(((missing_items[x][2], None), (missing_items[y][2], missing_items[x][1])))
 	return result
 
 
 def _get_list_missing_items(proposals, order_products):
 	result = []
+
 	for proposal in proposals:
 		missing_items = [0, dict(), proposal]
 
-		if len(proposal.order_products) == len(order_products):
-			for product in order_products:
-				if product.total_count == sum([x[0] for x in proposal.order_products[str(product.id)]]):
+		for product in order_products:
+			if proposal.order_products.get(str(product.id)) is None:
+				if missing_items[0] == 0 or missing_items[0] == 1:
+					missing_items[0] = 1
+					missing_items[1].update({str(product.id): None})
 					continue
-				_search_missing_items(proposal, product, missing_items)
-		else:
-			for product in order_products:
-				if proposal.order_product.get(str(product.id)) is None:
-					missing_items[0] = 3
-					missing_items[0].update({product.id: None})
+
+				missing_items[0] = 3
+				missing_items[1].update({str(product.id): None})
+				continue
+
+			if _get_count_product(proposal, product.id) < product.total_count:
+				if missing_items[0] == 0 or missing_items[0] == 2:
+					missing_items[0] = 2
+					missing_items[1].update({str(product.id): _search_missing_items(proposal, product)})
 					continue
-				if missing_items[0] != 3:
-					_search_missing_items(proposal, product, missing_items, 2)
-					continue
-				_search_missing_items(proposal, product, missing_items, 3)
+
+				missing_items[0] = 3
+				missing_items[1].update({str(product.id): _search_missing_items(proposal, product)})
 		result.append(missing_items)
 	return result
 
 
-def _search_missing_items(proposal, product, missing_items, context=1):
+def _search_missing_items(proposal, product):
+	result = []
 	for data in proposal.order_products[str(product.id)]:
 		if data[0] < product.count_and_address[str(data[1])]:
-			missing_items[0] = context
-			if missing_items[1].get(product.id) is None:
-				missing_items[1].update(
-					{product.id: [(data[1], product.count_and_address[str(data[1])] - data[0])]}
-				)
-			missing_items[1][product].append((data[1], product.count_and_address[str(data[1])] - data[0]))
-
-
-def _get_dict_order_products(order_products):
-	result = dict()
-	for product in order_products:
-		result.update({product.id: product})
+			result.append((data[1], product.count_and_address[str(data[1])] - data[0]))
 	return result
+
+
+def _get_count_product(proposal, product_id):
+	return sum([x[0] for x in proposal.order_products[str(product_id)]])

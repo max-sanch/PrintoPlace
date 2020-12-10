@@ -9,6 +9,7 @@ def delete_notification(request):
 	if user.is_company:
 		company = models.Company.objects.get(user=request.user)
 		company.notification = ''
+		company.moderator_message = ''
 		company.save()
 
 

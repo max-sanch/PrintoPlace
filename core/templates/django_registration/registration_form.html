@@ -23,7 +23,7 @@
 								<input type="text" name="first_name" maxlength="32"
 											 class="textinput textInput form-control {% if form.first_name.errors %}is-invalid{% endif %}"
 											 value="{% if form.first_name.value and not form.first_name.errors %}{{ form.first_name.value }}{% endif %}"
-											 required="" id="id_first_name">
+											 required id="id_first_name">
 							</div>
 							{% for error in form.first_name.errors %}
 							<p class="mt-1 text-danger">{{ error|escape }}</p>
@@ -37,7 +37,7 @@
 								<input type="text" name="last_name" maxlength="32"
 											 class="textinput textInput form-control {% if form.last_name.errors %}is-invalid{% endif %}"
 											 value="{% if form.last_name.value and not form.last_name.errors %}{{ form.last_name.value }}{% endif %}"
-											 required="" id="id_last_name">
+											 required id="id_last_name">
 							</div>
 							{% for error in form.last_name.errors %}
 							<p class="mt-1 text-danger">{{ error|escape }}</p>
@@ -52,7 +52,7 @@
 							<input type="email" name="email" maxlength="255" autofocus=""
 										 class="emailinput form-control {% if form.email.errors %}is-invalid{% endif %}"
 										 value="{% if form.email.value and not form.email.errors %}{{ form.email.value }}{% endif %}"
-										 required="" id="id_email">
+										 required id="id_email">
 						</div>
 						{% for error in form.email.errors %}
 						<p class="mt-1 text-danger">{{ error|escape }}</p>
@@ -61,12 +61,12 @@
 
 
 					<div id="div_id_phone_number" class="form-group">
-						<label for="id_phone_number">Номер телефона</label>
+						<label for="id_phone_number">Номер телефона<span class="asteriskField">*</span></label>
 						<div class="">
 							<input type="tel" name="phone_number" maxlength="12"
 										 class="textinput textInput form-control {% if form.phone_number.errors %}is-invalid{% endif %}"
 										 value="{% if form.phone_number.value and not form.phone_number.errors %}{{ form.phone_number.value }}{% endif %}"
-										 id="id_phone_number">
+										 required id="id_phone_number">
 						</div>
 						{% for error in form.phone_number.errors %}
 						<p class="mt-1 text-danger">{{ error|escape }}</p>
@@ -94,7 +94,7 @@
 						<div class="">
 							<input type="password" name="password1" autocomplete="new-password"
 										 class="textinput textInput form-control {% if form.password1.errors %}is-invalid{% endif %}"
-										 required="" id="id_password1">
+										 required id="id_password1">
 						</div>
 						{% for error in form.password1.errors %}
 						<p class="mt-1 text-danger">{{ error|escape }}</p>
@@ -107,7 +107,7 @@
 						<div class="">
 							<input type="password" name="password2" autocomplete="new-password"
 										 class="textinput textInput form-control {% if form.password2.errors %}is-invalid{% endif %}"
-										 required="" id="id_password2">
+										 required id="id_password2">
 						</div>
 						{% for error in form.password2.errors %}
 						<p class="mt-1 text-danger">{{ error|escape }}</p>
@@ -124,7 +124,7 @@
 
 					<div class="form-group required">
 						<div class="form-check">
-							<input type="checkbox" class="checkboxinput form-check-input" required="">
+							<input type="checkbox" class="checkboxinput form-check-input" required>
 							<label class="form-check-label">Я согласен с Политикой конфидециальности<br>и Условиями сервиса<span class="asteriskField">*</span></label>
 						</div>
 					</div>

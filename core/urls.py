@@ -20,19 +20,22 @@ urlpatterns = [
 	path('add_product/<slug:slug>/', views.AddProductView.as_view(), name='add_product'),
 	path('add_product_list/', views.AddProductListView.as_view(), name='add_product_list'),
 	path('personal_account/', views.PersonalAccountView.as_view(), name='personal_account'),
+	path('product_update/<product_id>/', views.ProductUpdateView.as_view(), name='product_update'),
 	path('proposals/<order_id>/', views.OrderExecutionProposalView.as_view(), name='proposals'),
 	path('become_company/', views.BecomeCompanyView.as_view(), name='become_company'),
 	path('update_company/', views.UpdateCompanyView.as_view(), name='update_company'),
 	path('shopping_cart/', views.ShoppingCartView.as_view(), name='shopping_cart'),
 	path('admin_panel/', views.AdminPanelView.as_view(), name='admin_panel'),
 	path('new_orders/', views.NewOrdersView.as_view(), name='new_orders'),
+	path('orders/', views.OrdersListView.as_view(), name='orders'),
 	path('login/', views.LoginView.as_view(), name='login'),
 
 	path('ordering/', views.OrderingView.as_view(), name='ordering'),
 	path('product_distribution/', views.ProductDistributionView.as_view(), name='product_distribution'),
-	path('order_handler/<order_id>/<status>/', views.set_order_status_view, name='order_handler'),
+	path('order_handler/<ord_exec_id>/', views.set_order_status_view, name='order_handler'),
 	path('delete_order/<order_id>/<context>/', views.delete_order_view, name='delete_order'),
 	path('delete_notification/', views.delete_notification_view, name='delete_notification'),
+	path('choose_offer/<order_id>/<offer>/', views.choose_offer_view, name='choose_offer'),
 	path('repeat_order/<order_id>/', views.repeat_order_view, name='repeat_order'),
 	path('payment/<order_id>/', views.PaymentView.as_view(), name='payment'),
 	path('inn_search/<inn>/', views.inn_search_view, name='inn_search'),
@@ -53,9 +56,9 @@ urlpatterns = [
 	path(
 		'password_reset/',
 		PasswordResetView.as_view(
-			template_name='account/password_reset.html',
-			email_template_name='account/password_reset_body.txt',
-			subject_template_name='account/password_reset_subject.txt'
+			template_name='account_pages/password_reset.html',
+			email_template_name='account_pages/password_reset_body.txt',
+			subject_template_name='account_pages/password_reset_subject.txt'
 		),
 		name='password_reset'
 	),
@@ -63,7 +66,7 @@ urlpatterns = [
 	path(
 		'password_reset_done/',
 		PasswordResetDoneView.as_view(
-			template_name='account/password_reset_done.html',
+			template_name='account_pages/password_reset_done.html',
 		),
 		name='password_reset_done'
 	),
@@ -71,7 +74,7 @@ urlpatterns = [
 	path(
 		'password_reset_confirm/<uidb64>/<token>/',
 		PasswordResetConfirmView.as_view(
-			template_name='account/password_reset_confirm.html',
+			template_name='account_pages/password_reset_confirm.html',
 			success_url='/login/'
 		),
 		name='password_reset_confirm'
@@ -80,7 +83,7 @@ urlpatterns = [
 	path(
 		'password_change/',
 		PasswordChangeView.as_view(
-			template_name='account/password_change.html',
+			template_name='account_pages/password_change.html',
 			success_url='/personal_account/'
 		),
 		name='password_change'

@@ -8,7 +8,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 class UserManager(BaseUserManager):
 	def create_user(
 		self, email, first_name, last_name, is_receiving_news,
-		is_company, phone_number, company_name, password=None
+		is_company, phone_number, company_name, addresses, password=None
 	):
 
 		if not email:
@@ -20,6 +20,7 @@ class UserManager(BaseUserManager):
 			last_name=last_name,
 			phone_number=phone_number,
 			company_name=company_name,
+			addresses=addresses,
 			is_receiving_news=is_receiving_news,
 			is_company=is_company
 		)
@@ -35,6 +36,7 @@ class UserManager(BaseUserManager):
 			last_name='',
 			phone_number='',
 			company_name='',
+			addresses=[],
 			is_receiving_news=False,
 			is_company=False,
 			password=password
@@ -113,13 +115,19 @@ class Company(models.Model):
 	"""Пользователь-исполнитель — данные о компании предоставляемой продукт"""
 	user = models.OneToOneField('User', on_delete=models.CASCADE)
 	addresses = ArrayField(
-		models.CharField(max_length=128),
+		models.CharField(max_length=256),
 		size=None,
 		verbose_name='Список адресов'
 	)
 	inn = models.CharField(
 		verbose_name='ИНН',
 		max_length=12
+	)
+	logo = models.FileField(
+		verbose_name='Логотип',
+		upload_to='company_logos/',
+		max_length=50,
+		blank=True
 	)
 	company_files = models.FileField(
 		verbose_name='Документы',
@@ -186,6 +194,7 @@ class ProductCompany(models.Model):
 		verbose_name='Продукт',
 		on_delete=models.CASCADE
 	)
+	price = models.JSONField(verbose_name='Цены на продукт')
 	characteristics = models.JSONField(verbose_name='Характеристики')
 
 	objects = models.Manager()
@@ -252,11 +261,11 @@ class OrderDetail(models.Model):
 	)
 	datetime = models.DateTimeField(auto_now_add=True)
 	STATUS = (
-		(1, 'Новая заявка'),
-		(2, 'Ожидание ответа'),
-		(3, 'Отправка'),
-		(4, 'В пути'),
-		(5, 'Прибыл')
+		(1, 'Новый заказ'),
+		(2, 'Ожидания взятия в работу'),
+		(3, 'Взят в работу'),
+		(4, 'Ожидание подтверждения'),
+		(5, 'Исполнен')
 	)
 	status = models.IntegerField(choices=STATUS)
 
@@ -282,7 +291,17 @@ class OrderExecutionProposal(models.Model):
 	company = models.ForeignKey('Company', on_delete=models.CASCADE)
 	order_products = models.JSONField()
 	price = models.IntegerField(verbose_name='Общая стоимость')
+	is_paid = models.BooleanField(verbose_name='Оплачено', default=False)
 	is_partially = models.BooleanField(verbose_name='Частичное выполнение', default=False)
+
+	objects = models.Manager
+
+
+class OrderProposalTemp(models.Model):
+	"""Временное сохранение списка предложений"""
+	order = models.OneToOneField('Order', on_delete=models.CASCADE)
+	proposal = models.JSONField()
+	count = models.IntegerField(verbose_name='Количество предложений')
 
 	objects = models.Manager
 
@@ -292,6 +311,13 @@ class OrderExecution(models.Model):
 	order = models.ForeignKey('Order', on_delete=models.CASCADE)
 	company = models.ForeignKey('Company', on_delete=models.CASCADE)
 	order_products = models.JSONField()
+	STATUS = (
+		(2, 'Отправлен на исполнение'),
+		(3, 'Взят в работу'),
+		(4, 'Подтверждение получения'),
+		(5, 'Исполнен')
+	)
+	status = models.IntegerField(choices=STATUS)
 	price = models.IntegerField(verbose_name='Стоимость')
 
 	objects = models.Manager
@@ -304,7 +330,7 @@ class OldOrder(models.Model):
 	price = models.IntegerField()
 	CONTEXT = (
 		(1, 'Завершён'),
-		(2, 'Окончание времени'),
+		(2, 'Окончание срока'),
 		(3, 'Отмена компанией'),
 		(4, 'Отмена клиентом'),
 	)

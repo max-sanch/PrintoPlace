@@ -1,0 +1,252 @@
+{% extends 'base_templates.html' %}
+{% load base_functions %}
+{% load static %}
+
+{% block title %}PrintoPlace - Личный кабинет{% endblock %}
+{% block content %}
+<!-- Personal Account -->
+<div>
+	<div class="container pt-5" style="min-height: 76vh;">
+		<div class="row mt-3">
+			<div class="col-12 col-md-3 mb-4">
+				<div class="nav row nav-pills px-3" role="tablist" aria-orientation="vertical">
+					<a class="nav-link col-12 active" id="prof_tab" data-toggle="pill" href="#prof" role="tab" aria-controls="prof" aria-selected="false">Мой профиль</a>
+					{% if not request.user.is_company %}
+					<a class="nav-link col-12" href="{% url 'orders' %}">Мои заказы</a>
+					{% endif %}
+					{% if request.user.is_company %}
+					<a class="nav-link col-12" id="catl_tab" data-toggle="pill" href="#catl" role="tab" aria-controls="catl" aria-selected="false">Мой каталог</a>
+					<a class="nav-link col-12" href="{% url 'new_orders' %}">Новые заказы</a>
+					{% endif %}
+				</div>
+			</div>
+			<div class="col-12 col-md-9">
+				<div class="tab-content">
+					<div class="tab-pane fade show active" id="prof" role="tabpanel" aria-labelledby="prof_tab">
+						<nav>
+							<div class="nav nav-tabs" id="nav-tab2" role="tablist">
+								<a class="nav-link active" id="dprf-tab" data-toggle="tab" href="#dprf" role="tab" aria-controls="dprf" aria-selected="true">Данные профиля</a>
+								{% if company.is_verification %}
+								<a class="nav-link" id="comp-tab" data-toggle="tab" href="#comp" role="tab" aria-controls="comp" aria-selected="true">Реквизиты компании</a>
+								{% endif %}
+								{% if company.is_verified and not company.is_verification %}
+								<a href="{% url 'update_company' %}" class="nav-link">Профиль компании</a>
+								{% endif %}
+								<a href="{% url 'password_change' %}" class="nav-link">Сменить пароль</a>
+							</div>
+						</nav>
+
+						<div class="tab-content" id="nav-tabContent2">
+							<div class="tab-pane fade show active p-4" id="dprf" role="tabpanel" aria-labelledby="dprf_tab">
+								{% if notifications %}
+								<div class="rounded border border-warning mb-3">
+									<div class="d-flex justify-content-between">
+										<h5 class="text-warning ml-3 mt-2">Уведомление</h5>
+										<a href="{% url 'delete_notification' %}" class="close mr-2" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</a>
+									</div>
+									{% for notification in notifications %}
+									<p class="text-secondary mx-4">{{ notification }}</p>
+									{% endfor %}
+								</div>
+								{% endif %}
+
+								<form method="post" class="mw-22rem">
+									{% csrf_token %}
+									<input type="hidden" name="next" value="">
+									<input type="hidden" name="form_name" value="user">
+									<div class="form-row">
+										<div id="div_id_first_name" class="form-group required col-md-6">
+											<label for="id_first_name" class=" requiredField">Имя</label>
+
+											<div class="">
+												<input type="text" name="first_name" maxlength="32"
+															 class="textinput textInput form-control"
+															 value="{{ request.user.first_name }}"
+															 required="" id="id_first_name">
+											</div>
+
+											{% for error in form.first_name.errors %}
+											<p class="mt-1 text-danger">{{ error|escape }}</p>
+											{% endfor %}
+										</div>
+
+										<div id="div_id_last_name" class="form-group required col-md-6">
+											<label for="id_last_name" class=" requiredField">Фамилия</label>
+
+											<div class="">
+												<input type="text" name="last_name" maxlength="32"
+															 class="textinput textInput form-control"
+															 value="{{ request.user.last_name }}"
+															 required="" id="id_last_name">
+											</div>
+
+											{% for error in form.last_name.errors %}
+											<p class="mt-1 text-danger">{{ error|escape }}</p>
+											{% endfor %}
+										</div>
+									</div>
+
+									<div id="div_id_phone_number" class="form-group">
+										<label for="id_phone_number">Номер телефона</label>
+										<div class="">
+											<input type="tel" name="phone_number" maxlength="12"
+														 class="textinput textInput form-control"
+														 value="{% if request.user.phone_number %}{{ request.user.phone_number }}{% endif %}"
+														 id="id_phone_number">
+										</div>
+
+										{% for error in form.phone_number.errors %}
+										<p class="mt-1 text-danger">{{ error|escape }}</p>
+										{% endfor %}
+									</div>
+
+									<div id="div_id_company_name" class="form-group">
+										<label for="id_company_name">Название компании</label>
+										<div class="">
+											<input type="text" name="company_name" maxlength="64"
+														 class="textinput textInput form-control"
+														 value="{% if request.user.company_name %}{{ request.user.company_name }}{% endif %}"
+														 id="id_company_name">
+										</div>
+
+										{% for error in form.company_name.errors %}
+										<p class="mt-1 text-danger">{{ error|escape }}</p>
+										{% endfor %}
+									</div>
+
+									<div class="form-group">
+										<label class="requiredField">Email</label>
+										<div class="">
+											<input type="email" class="form-control" readonly value="{{ request.user.email }}">
+										</div>
+									</div>
+
+									<div class="d-flex justify-content-between mt-4">
+										{% if not request.user.is_company %}
+										<a href="{% url 'become_company' %}" class="btn btn-outline-my">Стать исполнителем</a>
+										{% endif %}
+										<button type="submit" class="btn btn-primary">Сохранить</button>
+									</div>
+								</form>
+							</div>
+							{% if company.is_verification %}
+							<div class="tab-pane fade py-4" id="comp" role="tabpanel" aria-labelledby="comp_tab">
+								<form method="post" enctype="multipart/form-data">
+									{% csrf_token %}
+									<input type="hidden" name="next" value="">
+									<input type="hidden" name="form_name" value="company">
+									<div class="row">
+										<div class="col-12 col-md-4 col-lg-3">
+											{% get_logo company.id as logo %}
+											<div class="d-block mx-auto image-company" id="image_company"
+													 style="{% if logo != None %}background-image: url({{ company.logo.url }});{% endif %}">
+												<input type="file" id="inputFile" name="logo"
+															 class="input-file" onchange="load_company_file(this.files)">
+												<label for="inputFile"></label>
+											</div>
+										</div>
+										<div class="col-12 col-md-8 col-lg-9 mt-3 mt-md-0">
+											<h4 class="text-secondary mt-2">{{ request.user.company_name }}</h4>
+											<div class="form-group">
+												<label class="text-secondary mt-3">Торговое название</label>
+												<input type="text" class="form-control" name="trade_name">
+											</div>
+										</div>
+									</div>
+									<div class="row border-bottom py-4">
+										<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+											<p class="mb-1">Email</p>
+											<h6 class="text-primary">{{ request.user.email }}</h6>
+										</div>
+										<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+											<p class="mb-1">Телфон</p>
+											<h6 class="text-secondary">{{ request.user.phone_number }}</h6>
+										</div>
+										<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+											<p class="mb-1">Контактное лицо</p>
+											<h6 class="text-secondary">{{ request.user.full_name }}</h6>
+										</div>
+										<div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+											<p class="mb-1">ИНН</p>
+											<h6 class="text-secondary">{{ company.inn }}</h6>
+										</div>
+									</div>
+									<div class="py-4">
+										<h5 class="text-secondary mb-3">Адреса</h5>
+										<div id="address-list">
+											{% get_id_address company.addresses as addresses %}
+											{% for address in addresses %}
+											<div class="form-inline" id="{{ address.1 }}">
+												<input type="text" class="form-control col-10 col-lg-8"
+															 name="address" value="{{ address.0 }}" required>
+												<div class="text-secondary col-2 p-2 pt-3 pl-3 h6">
+													<i class="far fa-trash-alt" onclick="remove_address('{{ address.1 }}')"></i>
+												</div>
+											</div>
+											{% endfor %}
+										</div>
+										<button type="button" class="btn btn-link text-secondary p-0" onclick="add_address_company()">+ добавить адрес</button>
+									</div>
+									<div class="d-flex">
+										<button type="submit" class="btn btn-primary d-block ml-auto">Сохранить</button>
+									</div>
+								</form>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+
+					{% if request.user.is_company %}
+					<div class="tab-pane fade" id="catl" role="tabpanel" aria-labelledby="catl_tab">
+						{% if company.is_verification %}
+						<a href="{% url 'add_product_list' %}" type="button" class="btn btn-outline-secondary w-100 mb-3">Добавить новый продукт</a>
+
+						{% for one_prod in products %}
+						<div class="border border-secondary rounded p-3 mb-3">
+							<div class="row">
+								<div class="col-12 col-lg-3 text-center">
+									<a href="{% url 'one_product' one_prod.product.slug %}">
+										<img src="{% get_static_prefix %}image/icon/{{ one_prod.product.slug }}.svg">
+									</a>
+								</div>
+								<div class="col-12 col-lg-9 pl-3 pl-lg-0">
+									<div class="text-secondary">
+										<h4>{{ one_prod.product.name }}</h4>
+										<p>
+											{% for char in one_prod.characteristics.items %}
+												{{ char.0 }}:
+												{% for value in char.1 %}
+													{{ value }}{% if value == char.1|last %}; {% else %}, {% endif %}
+												{% endfor %}
+											{% endfor %}
+										</p>
+									</div>
+									<div class="d-flex justify-content-between text-secondary">
+										<a href="#" type="button" class="btn btn-outline-danger">Удалить</a>
+										<a href="#" type="button" class="btn btn-outline-my">Изменить</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% empty %}
+						<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
+						{% endfor %}
+
+						{% else %}
+						<h3 class="text-center text-secondary my-4">Необходимо верифицироваться!</h3>
+						{% endif %}
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include 'includes/contact_info.html' %}
+
+{% include 'includes/footer.html' %}
+
+{% endblock %}
