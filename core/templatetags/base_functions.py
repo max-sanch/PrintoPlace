@@ -39,10 +39,19 @@ def get_notifications(context):
 
 	elif request.user.is_company:
 		company = models.Company.objects.get(user=request.user)
-		if company.notification != '':
+		if company.notification != '' or company.moderator_message != '':
 			return True
 
 	return False
+
+
+@register.simple_tag()
+def get_context_order(order_id):
+	old_order = models.OldOrder.objects.get(order__id=int(order_id))
+	for context in models.OldOrder.CONTEXT:
+		if context[0] == old_order.context:
+			return context
+	return None
 
 
 @register.simple_tag()

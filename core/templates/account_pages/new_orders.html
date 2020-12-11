@@ -144,7 +144,6 @@
 											<h5 class="text-primary">Итого: {{ order.0.order.price }}р</h5>
 										</div>
 										<div class="d-flex justify-content-end">
-											<a href="{% url 'delete_order' order.0.order.id 3 %}" class="btn btn-outline-danger btn-sm mr-3">Отказать</a>
 											<button type="submit" class="btn btn-primary btn-sm">Отправить предложение</button>
 										</div>
 									</form>
@@ -274,16 +273,14 @@
 									<div class="d-flex">
 										<h5>Сумма заказа: {{ order.3 }} руб</h5>
 										{% if order.2 < 4 %}
-										<a href="{% url 'order_handler' order.6 %}" class="btn btn-primary ml-auto">
+										<button onclick="cancel_order({{ order.6 }}, 3)" class="btn btn-outline-danger ml-auto">Отказать</button>
+										<a href="{% url 'order_handler' order.6 %}" class="btn btn-primary ml-2">
 											{% if order.2 == 2 %}
 											Взять в работу
 											{% elif order.2 == 3 %}
 											Заказ исполнен
 											{% endif %}
 										</a>
-										{% endif %}
-										{% if order.2 == 5 %}
-										<p class="text-danger ml-auto">Ожидание остальных исполнителей</p>
 										{% endif %}
 									</div>
 								</div>
@@ -297,8 +294,85 @@
 
 							<div class="tab-pane fade p-4" id="cncl" role="tabpanel" aria-labelledby="cncl-tab">
 								{% if company.is_verification %}
-								{% for order in old_orders %}
+								{% for order in completed_orders %}
+								<div class="mb-2">
+									<div class="row">
+										<a class="col-12 col-lg-7 text-secondary h5"
+											 data-toggle="collapse" href="#ord-accept-{{ order.0 }}"
+											 role="button" aria-expanded="false"
+											 aria-controls="ord-accept-{{ order.0 }}">
+											Заказ №{{ order.0 }} от {{ order.1 }} <i class="fas fa-angle-down"></i>
+										</a>
+										{% get_context_order order.0 as context %}
+										<h5 class="col-12 col-lg-5 {% if context.0 == 1 %}text-success{% else %}text-danger{% endif %} text-right">{{ context.1 }}</h5>
+									</div>
+								</div>
 
+								<div class="collapse p-2" id="ord-accept-{{ order.0 }}">
+									<div class="row bg-light p-1 mb-3">
+										<div class="col-12 col-lg-6">
+											<div class="d-flex">
+												<h6>Телефон:</h6>
+												<h6 class="text-primary ml-4">{{ order.4.phone_number }}</h6>
+											</div>
+											<div class="d-flex">
+												<h6>Email:</h6>
+												<h6 class="text-primary ml-4">{{ order.4.email }}</h6>
+											</div>
+										</div>
+										<div class="col-12 col-lg-6">
+											<div class="d-flex">
+												<h6>Контактное лицо:</h6>
+												<h6 class="text-primary ml-4">{{ order.4.full_name }}</h6>
+											</div>
+										</div>
+									</div>
+
+									{% for product in order.5 %}
+										<div class="border border-secondary rounded p-3 mb-2">
+											<div class="row">
+												<div class="col-12 col-lg-2">
+													<a href="{{ product.0 }}">
+														<img src="{{ product.0 }}" class="rounded d-block mx-auto" style="max-width: 100px; max-height: 100px;">
+													</a>
+												</div>
+												<div class="col-12 col-lg-10 pl-3 pl-lg-0">
+													<div class="d-flex">
+														<h5 class="text-secondary">{{ product.1 }}</h5>
+														<h6 class="ml-auto">{{ product.2 }} руб</h6>
+													</div>
+													<p class="text-secondary">
+														<small>
+														{% for char in product.3.items %}
+															{{ char.0 }}: {{ char.1 }}
+														{% endfor %}
+														</small>
+													</p>
+													<div class="row">
+														{% for item in product.4 %}
+														<div class="col-2 text-secondary text-center"><small>{{ item.0 }} шт</small></div>
+														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ item.1 }}</small></div>
+														<div class="col-3 text-secondary"><small>до {{ item.2 }}</small></div>
+														{% endfor %}
+													</div>
+												</div>
+											</div>
+										</div>
+									{% endfor %}
+
+									<div class="d-flex">
+										<h5>Сумма заказа: {{ order.3 }} руб</h5>
+										{% if order.2 < 4 %}
+										<a href="{% url 'order_handler' order.6 %}" class="btn btn-primary ml-auto">
+											{% if order.2 == 2 %}
+											Взять в работу
+											{% elif order.2 == 3 %}
+											Заказ исполнен
+											{% endif %}
+										</a>
+										{% endif %}
+									</div>
+								</div>
 								{% empty %}
 								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
 								{% endfor %}
@@ -335,4 +409,19 @@
   </div>
 </div>
 
+<!-- Cancel order model -->
+<div class="modal fade show" id="cancel_order_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 350px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<h5 class="text-center mt-2 mb-4">Вы действительно хотите отменить заказ?</h5>
+				<div class="d-flex px-3">
+					<a href="{% url 'new_orders' %}" class="btn btn-primary">Не отменять</a>
+					<a href="#" class="btn btn-primary ml-auto" id="cancel_order_url">Отменить</a>
+				</div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

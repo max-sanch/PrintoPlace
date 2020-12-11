@@ -75,20 +75,9 @@
 										</div>
 									</div>
 									{% endfor %}
-									{% if order.status == 1 %}
 									<div class="d-flex justify-content-end">
-										<button onclick="cancel_order({{ order.order.id }})" class="btn btn-outline-danger">Отменить</button>
+										<button onclick="cancel_order({{ order.order.id }}, 4)" class="btn btn-outline-danger">Отменить</button>
 									</div>
-									{% elif order.status == 2 %}
-									<div class="d-flex justify-content-end">
-										<a href="{% url 'delete_order' order.order.id 4 %}" class="btn btn-outline-danger mr-3">Отменить</a>
-										<a href="{% url 'payment' order.order.id %}" class="btn btn-outline-my">Оплатить</a>
-									</div>
-									{% elif order.status == 4 %}
-									<div class="d-flex justify-content-end">
-										<a href="{% url 'order_handler' order.order.id order.status %}" class="btn btn-outline-my">Прибыл</a>
-									</div>
-									{% endif %}
 								</div>
 								{% empty %}
 								<h4 class="text-center text-secondary my-4">Тут пусто!</h4>
@@ -108,7 +97,6 @@
 								</div>
 
 								<div class="collapse p-2 pt-0" id="ord{{ order.0 }}">
-<!--									<button onclick="cancel_order({{ order.order.id }})" class="btn btn-link text-danger p-0">Отменить заказ</button>-->
 									{% for company in order.4 %}
 									<div class="mb-4">
 										<div class="row">
@@ -180,36 +168,82 @@
 
 							<div class="tab-pane fade p-4" id="cncl" role="tabpanel" aria-labelledby="cncl-tab">
 								{% for order in completed_orders %}
-								<div class="mb-3">
+								<div class="mb-1">
 									<div class="row">
-										<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.order.id }} от {{ order.datetime.date }}</h5>
-										{% get_status_client order.status as status %}
-										<h5 class="col-12 col-lg-5 text-success text-right">{{ status }}</h5>
+										<a class="col-12 col-lg-7 text-secondary h5" data-toggle="collapse" href="#ord-{{ order.0 }}" role="button" aria-expanded="false" aria-controls="ord-{{ order.0 }}">
+											Заказ №{{ order.0 }} от {{ order.1 }} <i class="fas fa-angle-down"></i>
+										</a>
+										{% get_context_order order.0 as context %}
+										<h5 class="col-12 col-lg-5 {% if context.0 == 1 %}text-success{% else %}text-danger{% endif %} text-right">{{ context.1 }}</h5>
 									</div>
+								</div>
 
-									{% for one_prod in order.products.products %}
-									{% get_products one_prod.product as product %}
-									<div class="border border-secondary rounded p-3 mb-3">
+								<div class="collapse p-2 pt-0" id="ord-{{ order.0 }}">
+									{% for company in order.4 %}
+									<div class="mb-4">
 										<div class="row">
-											<div class="col-12 col-lg-3">
-												<img src="{{ one_prod.design }}" class="rounded" style="max-width: 160px; max-height: 160px;">
+											<div class="col-2 col-lg-1">
+												<img src="{{ company.0 }}" class="rounded" style="weight: 20px; height: 20px;">
 											</div>
-											<div class="col-12 col-lg-9 pl-3 pl-lg-0">
-												<div class="text-secondary">
-													<h4>{{ product.name }}</h4>
-													<p>
-														{% for char in one_prod.characteristics.items %}
-															{{ char.0 }}: {{ char.1 }}
-														{% endfor %}
-													</p>
+											<h5 class="col-10 col-lg-6 text-secondary mb-3">{{ company.1 }}</h5>
+											{% if company.5 == 5 %}
+											<h6 class="col-12 col-lg-5 text-success text-right">Завершон</h6>
+											{% else %}
+											<h6 class="col-12 col-lg-5 text-danger text-right">Отмена компанией</h6>
+											{% endif %}
+										</div>
+										<div class="row bg-light p-1 mb-3">
+											<div class="col-12 col-lg-6">
+												<div class="d-flex">
+													<h6>Телефон:</h6>
+													<h6 class="text-primary ml-4">{{ company.2 }}</h6>
 												</div>
-												<h5 class="text-secondary">{% mult product.price one_prod.count %}p ({{ one_prod.count }}шт)</h5>
+												<div class="d-flex">
+													<h6>Email:</h6>
+													<h6 class="text-primary ml-4">{{ company.3 }}</h6>
+												</div>
+											</div>
+											<div class="col-12 col-lg-6">
+												<a class="text-dark h6" data-toggle="collapse" href="#q-{{ company.2|cut:'+' }}" role="button" aria-expanded="false" aria-controls="q-{{ company.2|cut:'+' }}">
+													Адреса <i class="fas fa-angle-down"></i>
+												</a>
+												<div class="collapse" id="q-{{ company.2|cut:'+' }}">
+													{% for address in company.4 %}
+													<p class="text-primary mb-0"><small>{{ address }}</small></p>
+													{% empty %}
+													<p class="text-primary">Не указано</p>
+													{% endfor %}
+												</div>
 											</div>
 										</div>
+										{% for product in company.6.items %}
+											<div class="border border-secondary rounded p-3 mb-2">
+												<div class="d-flex">
+													{% get_one_product product.0 as prod %}
+													<h5 class="text-secondary">{{ prod.product.name }}</h5>
+													<h6 class="ml-auto">{{ product.1.0 }} руб</h6>
+												</div>
+												{% for item in product.1.1 %}
+												<div class="row text-secondary">
+													<div class="col-2 text-center">{{ item.0 }} шт</div>
+													<div class="col-7">
+														<i class="fas fa-map-marker-alt text-primary"></i> <small>{{ item.1 }}</small>
+													</div>
+													<div class="col-3 text-center">до {{ item.2 }}</div>
+												</div>
+												{% endfor %}
+											</div>
+
+										{% endfor %}
+										{% if company.5 == 4 %}
+										<div class="d-flex">
+											<a href="{% url 'order_handler' company.7 %}" class="btn btn-primary btn-sm ml-auto">Заказ получен</a>
+										</div>
+										{% endif %}
 									</div>
 									{% endfor %}
-									<div class="d-flex justify-content-end text-secondary">
-										<a href="{% url 'repeat_order' order.id %}" type="button" class="btn btn-outline-my">Повторить</a>
+									<div class="d-flex mt-3">
+										<h5 class="text-primary ml-auto">Итого: {{ order.3 }} руб</h5>
 									</div>
 								</div>
 								{% empty %}

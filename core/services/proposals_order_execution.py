@@ -96,14 +96,14 @@ def get_proposals(order_id):
 				execution_full_order.append(proposal)
 
 	if len(execution_full_order) == len(proposals):
-		return [((x, None, 0),) for x in execution_full_order] + [((x, None, 1),) for x in proposals]
+		return [((x, None, 0),) for x in execution_full_order] + [((x, None, 1),) for x in other_proposals]
 
 	complete_other_offers = _get_other_proposals(other_proposals, order_products)
 
 	if len(execution_full_order) == 0:
-		return complete_other_offers + [((x, None, 1),) for x in proposals]
+		return complete_other_offers + [((x, None, 1),) for x in other_proposals]
 
-	return [((x, None, 0),) for x in execution_full_order] + complete_other_offers + [((x, None, 1),) for x in proposals]
+	return [((x, None, 0),) for x in execution_full_order] + complete_other_offers + [((x, None, 1),) for x in other_proposals]
 
 
 def _get_other_proposals(proposals, order_products):

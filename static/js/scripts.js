@@ -56,9 +56,15 @@ if (window.location.pathname == '/orders/') {
     }
 }
 
-function cancel_order(order_id) {
-    document.getElementById("cancel_order_url").href = "/delete_order/" + order_id + "/4"
+function cancel_order(order_id, context) {
+    document.getElementById("cancel_order_url").href = "/cancel_order/" + order_id + "/" + context
     document.getElementById("cancel_order_model").style.display = "block";
+}
+
+function split_order(order_id, offer) {
+    document.getElementById("split_order_url_no").href = "/choose_offer/" + order_id + "/" + offer
+    document.getElementById("split_order_url_yes").href = "/split_order/" + order_id + "/" + offer
+    document.getElementById("split_order_model").style.display = "block";
 }
 
 function search_inn() {
@@ -79,17 +85,24 @@ function search_inn() {
     }
 };
 
-function handle_files(files) {
+function handle_files(files, num) {
     var f = files[0];
     var reader = new FileReader();
     reader.onload = (function(theFile) {
         return function(e) {
-            document.getElementById('load_file').innerHTML = ['<img class="design" src="', e.target.result,
+            document.getElementById('load_file-' + num).innerHTML = ['<img class="design" src="', e.target.result,
                 '" title="', escape(theFile.name), '">'].join('');
+
+            document.getElementById('label-' + num).innerHTML = escape(theFile.name)
         };
     })(f);
 
     reader.readAsDataURL(f);
+}
+
+function set_design_page(next, now) {
+    document.getElementById('div-design-' + now).style.display = 'none';
+    document.getElementById('div-design-' + next).style.display = 'block';
 }
 
 function load_company_file(files) {

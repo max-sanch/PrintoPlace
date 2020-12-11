@@ -215,6 +215,13 @@ class ShoppingCart(models.Model):
 		upload_to='design_product/',
 		max_length=50
 	)
+	other_design = ArrayField(
+		models.FileField(
+			upload_to='design_product/',
+			max_length=50
+		),
+		size=None,
+	)
 	count = models.IntegerField()
 
 	objects = models.Manager()
@@ -265,7 +272,8 @@ class OrderDetail(models.Model):
 		(2, 'Ожидания взятия в работу'),
 		(3, 'Взят в работу'),
 		(4, 'Ожидание подтверждения'),
-		(5, 'Исполнен')
+		(5, 'Исполнен'),
+		(6, 'Удалён')
 	)
 	status = models.IntegerField(choices=STATUS)
 
@@ -278,6 +286,7 @@ class OrderProduct(models.Model):
 	product = models.ForeignKey('Product', on_delete=models.CASCADE)
 	characteristics = models.JSONField(verbose_name='Характеристики')
 	design_url = models.CharField(verbose_name='Ссылка на дизайн', max_length=128)
+	other_design_url = ArrayField(models.CharField(max_length=128), size=None)
 	total_count = models.IntegerField(verbose_name='Общее количество товара')
 	price = models.IntegerField(verbose_name='Стоимость')
 	count_and_address = models.JSONField(verbose_name='Адреса доставки и количество товара')
@@ -315,7 +324,8 @@ class OrderExecution(models.Model):
 		(2, 'Отправлен на исполнение'),
 		(3, 'Взят в работу'),
 		(4, 'Подтверждение получения'),
-		(5, 'Исполнен')
+		(5, 'Исполнен'),
+		(6, 'Отменён')
 	)
 	status = models.IntegerField(choices=STATUS)
 	price = models.IntegerField(verbose_name='Стоимость')
@@ -325,8 +335,7 @@ class OrderExecution(models.Model):
 
 class OldOrder(models.Model):
 	"""Информация о недействующих заказах"""
-	user = models.ForeignKey('User', on_delete=models.CASCADE)
-	company = models.ForeignKey('Company', on_delete=models.CASCADE)
+	order = models.OneToOneField('Order', on_delete=models.CASCADE)
 	price = models.IntegerField()
 	CONTEXT = (
 		(1, 'Завершён'),
@@ -335,7 +344,6 @@ class OldOrder(models.Model):
 		(4, 'Отмена клиентом'),
 	)
 	context = models.IntegerField(choices=CONTEXT)
-	datetime = models.DateTimeField()
 	completion_date = models.DateTimeField(auto_now_add=True)
 
 	objects = models.Manager

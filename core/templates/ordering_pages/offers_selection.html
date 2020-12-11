@@ -42,11 +42,16 @@
 			{% endfor %}
 				{% if proposal.3 == 1 %}
 				<p class="text-danger">Некоторые позиции отсутствуют!</p>
-				{% endif %}
+				<div class="d-flex justify-content-between mt-4">
+					<h5 class="text-primary">Сумма заказа: {{ proposal.1 }} руб</h5>
+					<button class="btn btn-primary" onclick="split_order({{ order_id }}, {{ proposal.2 }})">Выбрать</button>
+				</div>
+				{% else %}
 				<div class="d-flex justify-content-between mt-4">
 					<h5 class="text-primary">Сумма заказа: {{ proposal.1 }} руб</h5>
 					<a href="{% url 'choose_offer' order_id proposal.2 %}" class="btn btn-primary">Выбрать</a>
 				</div>
+				{% endif %}
 			</div>
 
 		{% empty %}
@@ -58,5 +63,22 @@
 			<a href="{% url 'personal_account' %}" class="btn btn-outline-my"><i class="fas fa-angle-left"></i> Назад</a>
 		</div>
 	</div>
+</div>
+
+<!-- Split order model -->
+<div class="modal fade show" id="split_order_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<h1 class="text-center text-primary my-3"><i class="fas fa-check-circle"></i></h1>
+				<h5 class="text-center mb-4">Хотите разместить заявку на оставшиеся товары?</h5>
+				<div class="d-flex mb-3">
+					<a href="#" class="btn btn-primary mx-auto" id="split_order_url_no" style="min-width: 100px;">Нет</a>
+					<a href="#" class="btn btn-primary mx-auto" id="split_order_url_yes" style="min-width: 100px;">Да</a>
+				</div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

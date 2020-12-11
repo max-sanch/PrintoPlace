@@ -48,7 +48,8 @@ class ProductPageView(FormView):
 			user=models.User.objects.get(id=self.request.user.id),
 			product=models.Product.objects.get(slug=self.kwargs.get('slug')),
 			characteristics=char,
-			design=self.request.FILES.get('design'),
+			design=self.request.FILES.getlist('design')[0],
+			other_design=[],
 			count=int(post.get('count')[0])
 		)
 		obj.save()
@@ -77,7 +78,7 @@ class ProductUpdateView(FormView):
 		obj = get_object_or_404(models.ShoppingCart, id=int(self.kwargs.get('product_id')))
 
 		if self.request.FILES.get('design') is not None:
-			obj.design = self.request.FILES.get('design')
+			obj.design = self.request.FILES.getlist('design')[0]
 
 		obj.characteristics = char
 		obj.count = int(post.get('count')[0])
@@ -228,6 +229,7 @@ class ShoppingCartView(FormView):
 				product=prod.product,
 				characteristics=prod.characteristics,
 				design_url=prod.design.url,
+				other_design_url=[],
 				total_count=prod.count,
 				price=prod.product.price * prod.count,
 				count_and_address={'items': []}
@@ -345,14 +347,23 @@ class NewOrdersView(FormView):
 		context['company'] = models.Company.objects.get(user=self.request.user)
 		context['products'] = models.ProductCompany.objects.filter(company__user=self.request.user)
 		context['new_orders'] = self.get_new_orders()
-		context['accepted_orders'] = self.get_accepted_orders()
+		context['accepted_orders'] = self.get_accepted_or_completed_orders()
+		context['completed_orders'] = self.get_accepted_or_completed_orders(context=1)
 
 		return context
 
-	def get_accepted_orders(self):
-		orders_execution = models.OrderExecution.objects.filter(company__user=self.request.user)
+	def get_accepted_or_completed_orders(self, context=0):
+		if context == 0:
+			orders_execution = models.OrderExecution.objects.filter(
+				company__user=self.request.user
+			).exclude(status=5).exclude(status=6)
+		else:
+			orders_execution = list(models.OrderExecution.objects.filter(company__user=self.request.user, status=5)) + \
+								list(models.OrderExecution.objects.filter(company__user=self.request.user, status=6))
+			orders_execution.sort(key=lambda x: x.order.id)
+
 		result = []
-		for order in orders_execution:
+		for order in orders_execution[::-1]:
 			order_detail = models.OrderDetail.objects.get(order__id=order.order.id)
 			order_data = [order.order.id, order_detail.datetime.date, order.status, 0, order.order.user, [], order.id]
 			for product in order.order_products.items():
@@ -386,7 +397,10 @@ class NewOrdersView(FormView):
 
 		for order in orders:
 			if order.order.id in my_proposals:
-				result.append((models.OrderExecutionProposal.objects.get(order__id=order.order.id), 0))
+				result.append((
+					models.OrderExecutionProposal.objects.get(order__id=order.order.id, company__user=self.request.user),
+					0
+				))
 				continue
 			result.append((order, 1))
 
@@ -535,16 +549,24 @@ class OrdersListView(TemplateView):
 		context = super().get_context_data(**kwargs)
 
 		context['new_orders'] = models.OrderDetail.objects.filter(order__user=self.request.user, status=1)[::-1]
-		context['executable_orders'] = self.get_executable_orders()
-		context['completed_orders'] = models.OldOrder.objects.filter(user=self.request.user)
+		context['executable_orders'] = self.get_executable_or_completed_orders()
+		context['completed_orders'] = self.get_executable_or_completed_orders(1)
 
 		return context
 
-	def get_executable_orders(self):
+	def get_executable_or_completed_orders(self, context=0):
 		result = []
-		order_detail_list = models.OrderDetail.objects.filter(
-			order__user=self.request.user
-		).exclude(status=1).exclude(status=5)
+		if context == 0:
+			order_detail_list = models.OrderDetail.objects.filter(
+				order__user=self.request.user
+			).exclude(status=1).exclude(status=5).exclude(status=6)
+		else:
+			order_detail_list = list(models.OrderDetail.objects.filter(order__user=self.request.user, status=5))
+			for order_detail in models.OrderDetail.objects.filter(order__user=self.request.user, status=6):
+				if models.OldOrder.objects.get(order=order_detail.order).context == 3:
+					order_detail_list.append(order_detail)
+
+			order_detail_list.sort(key=lambda x: x.order.id)
 
 		for order_detail in order_detail_list[::-1]:
 			order_data = [order_detail.order.id, order_detail.datetime.date, order_detail.status, 0, []]
@@ -603,6 +625,7 @@ class BecomeCompanyView(FormView):
 		company = models.Company(
 			user=user,
 			inn=self.request.POST.get('inn'),
+			moderator_message='Ваша заявка отправлена на рассмотрение!',
 			addresses=[]
 		)
 		company.save()
@@ -612,22 +635,26 @@ class BecomeCompanyView(FormView):
 		user.save()
 
 
-class UpdateCompanyView(UpdateView):
+class UpdateCompanyView(FormView):
 	template_name = 'account_pages/become_company.html'
-	model = models.Company
-	fields = ['addresses', 'inn', 'company_files']
+	form_class = forms.BecomeCompanyForm
 	success_url = '/personal_account/'
-	object = None
-
-	def get_object(self, queryset=None):
-		return get_object_or_404(models.Company, user=self.request.user)
 
 	def form_valid(self, form):
-		self.object = form.save()
-		self.object.is_verified = False
-		self.object.moderator_message = ''
-		self.object.save()
-		return HttpResponseRedirect(self.get_success_url())
+		self.save()
+		return super().form_valid(form)
+
+	def save(self):
+		user = models.User.objects.get(id=self.request.user.id)
+		company = get_object_or_404(models.Company, user=user)
+		company.inn = self.request.POST.get('inn')
+		company.is_verified = False
+		company.addresses = []
+		company.moderator_message = 'Ваша заявка отправлена на рассмотрение!'
+		user.company_name = self.request.POST.get('company_name')
+		user.phone_number = self.request.POST.get('phone_number')
+		company.save()
+		user.save()
 
 
 class AdminPanelView(FormView):
@@ -645,12 +672,12 @@ class AdminPanelView(FormView):
 		return super().form_valid(form)
 
 	def save(self):
-		user = models.User.objects.get(email=self.request.POST.get('company_user'))
-		company = models.Company.objects.get(user=user)
-		company.moderator_message = self.request.POST.get('moderator_message')
+		company = models.Company.objects.get(user__email=self.request.POST.get('company_user'))
+		company.moderator_message = 'Ошибка верификации: ' + self.request.POST.get('moderator_message')
 		company.is_verified = True
 
 		if self.request.POST.get('is_verification') is not None:
+			company.moderator_message = 'Вы успешно прошли верификацию!'
 			company.is_verification = True
 
 		company.save()
@@ -668,8 +695,8 @@ def set_order_status_view(request, ord_exec_id):
 	return HttpResponseRedirect('/orders/')
 
 
-def delete_order_view(request, order_id, context):
-	order_handler.delete_order(order_id, context)
+def cancel_order_view(request, order_id, context):
+	order_handler.cancel_order(order_id, context)
 	if request.user.is_company:
 		return HttpResponseRedirect('/new_orders/')
 	return HttpResponseRedirect('/orders/')
@@ -717,6 +744,14 @@ def create_product_view(request):
 def choose_offer_view(request, order_id, offer):
 	if request.user == get_object_or_404(models.Order, id=int(order_id)).user:
 		order_handler.choose_offer(int(order_id), int(offer))
+		return HttpResponseRedirect('/orders/#add_offer')
+	else:
+		return HttpResponseRedirect('/orders/')
+
+
+def split_order_view(request, order_id, offer):
+	if request.user == get_object_or_404(models.Order, id=int(order_id)).user:
+		order_handler.split_order(int(order_id), int(offer))
 		return HttpResponseRedirect('/orders/#add_offer')
 	else:
 		return HttpResponseRedirect('/orders/')

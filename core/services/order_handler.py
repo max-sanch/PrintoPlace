@@ -4,12 +4,24 @@ from core.services import notification_handler
 
 def set_order_status(order_id):
 	order_detail = models.OrderDetail.objects.get(order__id=int(order_id))
-	if order_detail.status == 4:
-		delete_order(order_id, 1)
-	else:
+	if order_detail.status < 5:
 		order_detail.status += 1
 		order_detail.save()
-		# notification_handler.send_notification(order_id, status)
+
+	if order_detail.status == 5:
+		add_data_old_order(order_id, 1)
+
+	notification_handler.send_notification(order_id, order_detail.status)
+
+
+def add_data_old_order(order_id, context):
+	price = sum([x.price for x in models.OrderExecution.objects.filter(order__id=int(order_id))])
+	old_order = models.OldOrder(
+		order=models.Order.objects.get(id=int(order_id)),
+		price=price,
+		context=context
+	)
+	old_order.save()
 
 
 def set_order_execution_status(ord_exec_id):
@@ -18,23 +30,47 @@ def set_order_execution_status(ord_exec_id):
 	if obj.status < 5:
 		obj.status += 1
 		obj.save()
-		is_all_order_execution_set_status(obj.order, order_detail)
+		if is_all_order_execution_set_status(obj.order, order_detail):
+			set_order_status(obj.order.id)
 
 
 def is_all_order_execution_set_status(order, order_detail):
-	is_set_order = True
+	is_set_status = True
 	for order_exec in models.OrderExecution.objects.filter(order=order):
-		if order_exec.status == order_detail.status:
-			is_set_order = False
+		if order_exec.status <= order_detail.status:
+			is_set_status = False
 
-	if is_set_order:
-		set_order_status(order.id)
+	return is_set_status
 
 
-def delete_order(order_id, context):
-	order = models.Order.objects.get(id=int(order_id))
-	# old_order
-	order.delete()
+def cancel_order(order_id, context):
+	if int(context) == 4:
+		order = models.Order.objects.get(id=int(order_id))
+		order.delete()
+	elif int(context) == 3:
+		order_exec = models.OrderExecution.objects.get(id=int(order_id))
+		order_detail = models.OrderDetail.objects.get(order=order_exec.order)
+		if len(models.OrderExecution.objects.filter(order=order_exec.order)) == 1:
+			order_detail.status = 6
+			order_detail.save()
+			order_exec.status = 6
+			order_exec.save()
+			add_data_old_order(order_exec.order.id, 3)
+		else:
+			order_exec.status = 6
+			order_exec.save()
+			add_data_old_order(order_exec.order.id, 3)
+			is_set_status = True
+			for order_exec in models.OrderExecution.objects.filter(order=order_exec.order):
+				if order_exec.status != 6:
+					is_set_status = False
+
+			if is_set_status:
+				order_detail.status = 6
+				order_detail.save()
+		user = order_detail.order.user
+		user.notification = 'Компания '+order_exec.company.user.company_name+' отменила выполнение заказа №'+str(order_id)
+		user.save()
 
 
 def repeat_order(request, order_id):
@@ -88,10 +124,39 @@ def choose_offer(order_id, offer):
 		obj.save()
 
 	_delete_orders_execution_proposal_and_temp(order_id)
-	set_order_status(order_id, 1)
+	set_order_status(order_id)
+
+
+def split_order(order_id, offer):
+	proposal = models.OrderProposalTemp.objects.get(order__id=order_id).proposal[offer]
+	products_list = dict()
+
+	for company in proposal[0].items():
+		for product in company[1].items():
+			count = 0
+			for item in product[1]:
+				count += item[0]
+			products_list.update({product[0]: count + products_list.get(product[0], 0)})
+
+	for order_product in models.OrderProduct.objects.filter(order__id=order_id):
+		count = products_list.get(str(order_product.id))
+		if count is not None:
+			if order_product.total_count - count > 0:
+				obj = models.ShoppingCart(
+					user=order_product.order.user,
+					product=order_product.product,
+					characteristics=order_product.characteristics,
+					design=order_product.design_url[6:],
+					other_design=[],
+					count=order_product.total_count - count,
+				)
+				obj.save()
+
+	choose_offer(order_id, offer)
 
 
 def _delete_orders_execution_proposal_and_temp(order_id):
-	for order in models.OrderExecutionProposal.objects.get(id=order_id):
+	order_id = int(order_id)
+	for order in models.OrderExecutionProposal.objects.filter(order__id=order_id):
 		order.delete()
-	models.OrderProposalTemp.objects.get(id=order_id).delete()
+	models.OrderProposalTemp.objects.get(order__id=order_id).delete()
