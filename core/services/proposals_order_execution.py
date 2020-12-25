@@ -51,6 +51,7 @@ def start(order_id):
 							total_price += item[1]*order_product.product.price
 
 		proposal[1] = total_price
+		total_price = 0
 		result.append(proposal)
 
 	save_proposal_temp(result, order_id)
@@ -117,7 +118,7 @@ def _get_other_proposals(proposals, order_products):
 					if product[0] in missing_items[y][1].keys():
 						break
 				else:
-					result.append(((missing_items[x][2], None), (missing_items[y][2], missing_items[x][1])))
+					result.append(((missing_items[x][2], None, 0), (missing_items[y][2], missing_items[x][1])))
 					continue
 
 			elif missing_items[x][0] != 0:
@@ -149,7 +150,7 @@ def _get_other_proposals(proposals, order_products):
 					if not is_add:
 						break
 				else:
-					result.append(((missing_items[x][2], None), (missing_items[y][2], missing_items[x][1])))
+					result.append(((missing_items[x][2], None, 0), (missing_items[y][2], missing_items[x][1])))
 	return result
 
 

@@ -29,7 +29,7 @@ def set_order_execution_status(ord_exec_id):
 	order_detail = models.OrderDetail.objects.get(order=obj.order)
 	if obj.status < 5:
 		obj.status += 1
-		obj.save()
+		obj.save() ### fix
 		if is_all_order_execution_set_status(obj.order, order_detail):
 			set_order_status(obj.order.id)
 
@@ -140,17 +140,20 @@ def split_order(order_id, offer):
 
 	for order_product in models.OrderProduct.objects.filter(order__id=order_id):
 		count = products_list.get(str(order_product.id))
+		
 		if count is not None:
-			if order_product.total_count - count > 0:
-				obj = models.ShoppingCart(
-					user=order_product.order.user,
-					product=order_product.product,
-					characteristics=order_product.characteristics,
-					design=order_product.design_url[6:],
-					other_design=[],
-					count=order_product.total_count - count,
-				)
-				obj.save()
+			count = 0
+
+		if order_product.total_count - count > 0:
+			obj = models.ShoppingCart(
+				user=order_product.order.user,
+				product=order_product.product,
+				characteristics=order_product.characteristics,
+				design=order_product.design_url[6:],
+				other_design=[],
+				count=order_product.total_count - count,
+			)
+			obj.save()
 
 	choose_offer(order_id, offer)
 

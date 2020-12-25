@@ -78,7 +78,7 @@
 										<input type="hidden" name="order" value="{{ order.0.order.id }}">
 										<div class="row">
 											<h5 class="col-12 col-lg-7 text-secondary mb-3">Заказ №{{ order.0.order.id }} от {{ order.0.datetime.date }}</h5>
-											{% get_status_company order.status as status %}
+											{% get_status_company order.0.status as status %}
 											<h5 class="col-12 col-lg-5 text-success text-right">{{ status }}</h5>
 										</div>
 
