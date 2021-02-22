@@ -162,3 +162,21 @@ function remove_address(address_id) {
     var address = document.getElementById(address_id);
     address.remove()
 }
+
+function select_all_products(order_id) {
+    var button = document.getElementById('select_all_' + order_id);
+    var checks = document.getElementsByClassName('check_' + order_id);
+    for (var check of checks) {
+        check.checked = true;
+    }
+}
+
+function open_filter_addresses() {
+    var div = document.getElementById('filter_addresses_model');
+    div.style.display = 'block';
+}
+
+function close_filter_addresses() {
+    var div = document.getElementById('filter_addresses_model');
+    div.style.display = 'none';
+}

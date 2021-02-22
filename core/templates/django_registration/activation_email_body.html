@@ -1,0 +1,84 @@
+
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <script src="https://kit.fontawesome.com/4649526873.js" crossorigin="anonymous"></script>
+
+    <style type="text/css">
+      .bg-light {
+        background-color: #f2f2f2!important;
+      }
+      .link-primary {
+        color: #f3651b!important;
+      }
+      .bg-primary {
+        background-color: #f3651b!important;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand link-primary" href="localhost:8000">
+          <img
+              src="https://raw.githubusercontent.com/max-sanch/airprint/8f9980667a69123562888e2260af884da81d98b8/image/image/logo.svg"
+              width="30" height="30" class="d-inline-block align-top">
+          PrintoPlace
+        </a>
+      </div>
+    </nav>
+
+    <div class="pb-4">
+      <div class="container">
+        <h5 class="pt-5">Здравствуйте, {{ user }}!</h5>
+        <p class="pt-3 m-0">Регистрация на сайте PrintoPlace.</p>
+        <p class="mt-0">
+          Для активации вашего аккаунта необходимо перейти по
+          <a href="localhost:8000/account/activate/{{ activation_key }}/" style="color: #f3651b!important;">ссылке</a>!
+        </p>
+        <p class="pt-3">Если вы не регистрировались на этом сайте, просто удалите сообщение!</p>
+        <p class="pt-4 m-0">С уважением,</p>
+        <a href="localhost:8000" style="color: #f3651b!important;">PrintoPlace</a>
+      </div>
+    </div>
+
+    <div class="bg-primary">
+      <div class="container pb-3">
+        <div class="row">
+          <div class="col-sm-7 mt-3 pr-0">
+            <div class="d-flex flex-column bd-highlight">
+              <div class="bd-highlight"><h5 class="text-white">Любые вопросы?</h5></div>
+              <div class="bd-highlight"><p class="text-white mb-0">Проконсультируем в личной беседе.</p></div>
+            </div>
+          </div>
+          <div class="col-sm-5 mt-3 pl-0">
+            <div class="d-flex flex-column bd-highlight">
+              <div class="bd-highlight ml-auto"><h5 class="text-white"><i class="fas fa-phone"></i> +7 (999) 999-9999</h5></div>
+              <div class="bd-highlight ml-auto"><p class="text-white mb-0"><i class="fas fa-at"></i> Email: help@printoplace.ru</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="container">
+        <p class="text-secondary text-center mt-2">
+          Это письмо отправлено автоматически. Пожалуйста, не отвечайте на него.
+        </p>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+  </body>
+</html>

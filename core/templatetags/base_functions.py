@@ -1,4 +1,5 @@
 from django import template
+from django.shortcuts import get_object_or_404
 
 from core import models
 
@@ -38,7 +39,7 @@ def get_notifications(context):
 		return True
 
 	elif request.user.is_company:
-		company = models.Company.objects.get(user=request.user)
+		company = get_object_or_404(models.Company, user=request.user)
 		if company.notification != '' or company.moderator_message != '':
 			return True
 
@@ -47,7 +48,7 @@ def get_notifications(context):
 
 @register.simple_tag()
 def get_context_order(order_id):
-	old_order = models.OldOrder.objects.get(order__id=int(order_id))
+	old_order = get_object_or_404(models.OldOrder, order__id=int(order_id))
 	for context in models.OldOrder.CONTEXT:
 		if context[0] == old_order.context:
 			return context
@@ -56,8 +57,8 @@ def get_context_order(order_id):
 
 @register.simple_tag()
 def get_address_and_data(prod_id):
-	prod = models.OrderProduct.objects.get(id=int(prod_id))
-	order = models.OrderDetail.objects.get(order=prod.order)
+	prod = get_object_or_404(models.OrderProduct, id=int(prod_id))
+	order = get_object_or_404(models.OrderDetail, order=prod.order)
 	address = order.address_and_deadline['items']
 	result = []
 	for item in prod.count_and_address.items():
@@ -73,13 +74,13 @@ def get_address_and_data(prod_id):
 
 @register.simple_tag()
 def get_address(address_id, order_id):
-	order_detail = models.OrderDetail.objects.get(order__id=int(order_id))
+	order_detail = get_object_or_404(models.OrderDetail, order__id=int(order_id))
 	return order_detail.address_and_deadline['items'][int(address_id)][0]
 
 
 @register.simple_tag()
 def get_one_address_and_date(address_id, order_id):
-	order_detail = models.OrderDetail.objects.get(order__id=int(order_id))
+	order_detail = get_object_or_404(models.OrderDetail, order__id=int(order_id))
 	return (
 		order_detail.address_and_deadline['items'][int(address_id)][0],
 		'%s %s' % (
@@ -91,19 +92,19 @@ def get_one_address_and_date(address_id, order_id):
 
 @register.simple_tag()
 def get_order_date(order_id):
-	return models.OrderDetail.objects.get(order__id=order_id).datetime
+	return get_object_or_404(models.OrderDetail, order__id=order_id).datetime
 
 
 @register.simple_tag()
 def get_items_product(product_id):
-	order_product = models.OrderProduct.objects.get(id=int(product_id))
+	order_product = get_object_or_404(models.OrderProduct, id=int(product_id))
 	result = [(x[1], x[0], x[1]*order_product.product.price) for x in order_product.count_and_address.items()]
 	return result
 
 
 @register.simple_tag()
 def get_logo(company_id):
-	company = models.Company.objects.get(id=int(company_id))
+	company = get_object_or_404(models.Company, id=int(company_id))
 	if company.logo == '':
 		return None
 	return company.logo
@@ -126,7 +127,7 @@ def get_products(order_id):
 
 @register.simple_tag()
 def get_one_product(product_id):
-	return models.OrderProduct.objects.get(id=int(product_id))
+	return get_object_or_404(models.OrderProduct, id=int(product_id))
 
 
 @register.simple_tag()

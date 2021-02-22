@@ -34,11 +34,11 @@
 
 						<div class="bg-white rounded p-3 mt-3">
 							<div class="custom-file">
-								<input type="file" name="design" class="custom-file-input" onchange="handle_files(this.files, 1)">
+								<input type="file" name="design" class="custom-file-input" onchange="handle_files(this.files, 1)" required>
 								<label class="custom-file-label" id="label-1" data-browse="Загрузить">Загрузить оформление</label>
 							</div>
 							<div class="pt-2">
-								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1">Шаблоны</a>
+								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1"><i class="fas fa-external-link-alt"></i> Шаблоны</a>
 							</div>
 						</div>
 					</div>
@@ -70,7 +70,7 @@
 								<label class="custom-file-label" id="label-2" data-browse="Загрузить">Загрузить оформление</label>
 							</div>
 							<div class="pt-2">
-								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1">Шаблоны</a>
+								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1"><i class="fas fa-external-link-alt"></i> Шаблоны</a>
 							</div>
 						</div>
 					</div>
@@ -102,7 +102,7 @@
 								<label class="custom-file-label" id="label-3" data-browse="Загрузить">Загрузить оформление</label>
 							</div>
 							<div class="pt-2">
-								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1">Шаблоны</a>
+								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1"><i class="fas fa-external-link-alt"></i> Шаблоны</a>
 							</div>
 						</div>
 					</div>
@@ -132,7 +132,7 @@
 								<label class="custom-file-label" id="label-4" data-browse="Загрузить">Загрузить оформление</label>
 							</div>
 							<div class="pt-2">
-								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1">Шаблоны</a>
+								<a class="text-secondary" href="https://yadi.sk/d/0csN12NBusKSTA?w=1"><i class="fas fa-external-link-alt"></i> Шаблоны</a>
 							</div>
 						</div>
 					</div>
@@ -191,7 +191,7 @@
 							<label for="id_count" class=" requiredField">Количество</label>
 							<div class="row">
 								<div id="div_id_count" class="col-6 mb-3">
-									<input type="number" name="count" min="1" class="numberinput form-control" placeholder="Количество" value="1" required="" id="id_count">
+									<input type="number" name="count" min="1" class="numberinput form-control" placeholder="Количество" value="1" required id="id_count">
 								</div>
 
 								<div class="col-6 pl-0">
@@ -220,45 +220,71 @@
 	</div>
 </div>
 
-<!-- Product gallery -->
-<div class="bg-light py-5">
-	<div class="container">
-		<h3 class="text-secondary mb-5">Галерея продукта</h3>
-		<div class="row">
-
-			{% load static %}
-			<div class="col-12 col-md-4 pb-5">
-				<div class="card">
-					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">
-					<div class="card-body">
-						<h5 class="card-title">Card title</h5>
-						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-					</div>
-				</div>
+<!-- More product -->
+<div class="bg-light">
+	<div class="container py-4">
+		<h3 class="text-secondary mb-4">Другие продукты</h3>
+		<div class="row text-center">
+			{% for one_prod in products %}
+			{% url 'one_product' one_prod.slug as product_path %}
+			<div class="col-6 col-md-3 col-lg-2">
+				<a href="{{ product_path }}" class="text-secondary display-3 px-auto">
+					<img src="{% get_static_prefix %}image/icon/{{ one_prod.slug }}.svg" width="130px" style="filter: brightness(.95); ">
+				</a>
+				<h5 class="text-secondary"><small>{{ one_prod.name }}</small></h5>
 			</div>
-
-			<div class="col-12 col-md-4 pb-5">
-				<div class="card">
-					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">
-					<div class="card-body">
-						<h5 class="card-title">Card title</h5>
-						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-12 col-md-4 pb-5">
-				<div class="card">
-					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">
-					<div class="card-body">
-						<h5 class="card-title">Card title</h5>
-						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-					</div>
-				</div>
+			{% empty %}
+			<h3 class="text-center text-secondary my-4">Ничего не найдено!</h3>
+			{% endfor %}
+			<div class="col-6 col-md-3 col-lg-2">
+				<a href="{% url 'products' %}" class="text-secondary display-3 px-auto">
+					<img src="{% get_static_prefix %}image/more_icon.svg" width="130px" style="filter: brightness(.95); ">
+				</a>
+				<h5 class="text-primary"><small>Больше товаров</small></h5>
 			</div>
 		</div>
 	</div>
 </div>
+
+<!-- Product gallery -->
+<!--<div class="bg-light py-5">-->
+<!--	<div class="container">-->
+<!--		<h3 class="text-secondary mb-5">Галерея продукта</h3>-->
+<!--		<div class="row">-->
+
+<!--			{% load static %}-->
+<!--			<div class="col-12 col-md-4 pb-5">-->
+<!--				<div class="card">-->
+<!--					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">-->
+<!--					<div class="card-body">-->
+<!--						<h5 class="card-title">Card title</h5>-->
+<!--						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+<!--					</div>-->
+<!--				</div>-->
+<!--			</div>-->
+
+<!--			<div class="col-12 col-md-4 pb-5">-->
+<!--				<div class="card">-->
+<!--					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">-->
+<!--					<div class="card-body">-->
+<!--						<h5 class="card-title">Card title</h5>-->
+<!--						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+<!--					</div>-->
+<!--				</div>-->
+<!--			</div>-->
+
+<!--			<div class="col-12 col-md-4 pb-5">-->
+<!--				<div class="card">-->
+<!--					<img src="{% static 'image/Galereya_1.png' %}" class="card-img-top">-->
+<!--					<div class="card-body">-->
+<!--						<h5 class="card-title">Card title</h5>-->
+<!--						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+<!--					</div>-->
+<!--				</div>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
+<!--</div>-->
 
 {% include 'includes/contact_info.html' %}
 

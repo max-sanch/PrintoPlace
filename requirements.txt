@@ -16,9 +16,11 @@ maxminddb==2.0.3
 multidict==4.7.6
 phonenumbers==8.12.9
 psycopg2==2.8.6
+python-dotenv==0.15.0
 pytz==2020.1
 requests==2.24.0
 sqlparse==0.3.1
 urllib3==1.25.11
 win32-setctime==1.0.2
+yadisk==1.2.14
 yarl==1.5.1

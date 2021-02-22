@@ -13,6 +13,11 @@
 			<input type="hidden" name="next" value="">
 
 			<div style="min-height: 70vh;">
+				<div class="my-3">
+					{% for error in form.errors.values %}
+					<h5 class="text-danger">{{ error }}</h5>
+					{% endfor %}
+				</div>
 				{% for one_prod in products %}
 				{% url 'one_product' one_prod.product.slug as product_path %}
 				<div class="border rounded p-3 mb-3">

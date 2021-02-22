@@ -23,7 +23,7 @@ urlpatterns = [
 	path('product_update/<product_id>/', views.ProductUpdateView.as_view(), name='product_update'),
 	path('proposals/<order_id>/', views.OrderExecutionProposalView.as_view(), name='proposals'),
 	path('become_company/', views.BecomeCompanyView.as_view(), name='become_company'),
-	path('update_company/', views.UpdateCompanyView.as_view(), name='update_company'),
+	path('update_company/', views.BecomeCompanyView.as_view(), name='update_company'),
 	path('shopping_cart/', views.ShoppingCartView.as_view(), name='shopping_cart'),
 	path('admin_panel/', views.AdminPanelView.as_view(), name='admin_panel'),
 	path('new_orders/', views.NewOrdersView.as_view(), name='new_orders'),
@@ -43,10 +43,22 @@ urlpatterns = [
 
 	path('help/', TemplateView.as_view(template_name='other_pages/help.html'), name='help'),
 	path('about_us/', TemplateView.as_view(template_name='other_pages/about_us.html'), name='about_us'),
-	path('policy/', TemplateView.as_view(template_name='other_pages/privacy_policy.html'), name='policy'),
 	path('city_selection/', views.city_selection_view, name='city'),
 
+	path('policy/platform', TemplateView.as_view(template_name='other_pages/policy/platform.html'), name='platform'),
+	path('policy/privacy', TemplateView.as_view(template_name='other_pages/policy/privacy.html'), name='privacy'),
+	path('policy/service', TemplateView.as_view(template_name='other_pages/policy/service.html'), name='service'),
+	path('policy/p_data', TemplateView.as_view(template_name='other_pages/policy/p_data.html'), name='p_data'),
+	path('policy/', TemplateView.as_view(template_name='other_pages/privacy_policy.html'), name='policy'),
+
 	path('create_product/', views.create_product_view),
+
+	path(
+		'become_company_fail/',
+		TemplateView.as_view(
+			template_name='account_pages/become_company_fail.html'
+		),
+		name='become_company_fail'),
 
 	path(
 		'delete_product_in_cart/<product_id>/',

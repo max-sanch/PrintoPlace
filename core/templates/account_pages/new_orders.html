@@ -83,26 +83,27 @@
 										</div>
 
 										<div class="d-flex justify-content-between mb-2">
-											<button type="button" class="btn btn-outline-secondary btn-sm">Адреса</button>
+											<button type="button" class="btn btn-outline-secondary btn-sm" onclick="open_filter_addresses()">Адреса</button>
 											{% for error in form.errors.items %}
 												{% int_to_str order.0.order.id as order_id %}
 												{% if error.0 == order_id %}
 												<p class="text-danger h6 mt-3">{{ error.1 }}</p>
 												{% endif %}
 											{% endfor %}
-											<button type="button" class="btn btn-outline-secondary btn-sm">Выбрать всё</button>
+											<button type="button" class="btn btn-outline-secondary btn-sm" id="select_all_{{ order.0.order.id }}"
+															onclick="select_all_products({{ order.0.order.id }})">Выбрать всё</button>
 										</div>
 
 										{% get_products order.0.order.id as products %}
 										{% for one_prod in products %}
-										<div class="border border-secondary rounded p-3 mb-2">
+										<div class="border border-secondary rounded p-3 mb-2 ">
 											<div class="row">
 												<div class="col-12 col-lg-12">
 													<div class="text-secondary">
 
 														<div class="form-check d-flex">
-															<input class="form-check-input position-static mt-2 mr-2" type="checkbox" id="blankCheckbox"
-																		 name="prod" value="{{ one_prod.id }}">
+															<input class="form-check-input position-static mt-2 mr-2 check_{{ order.0.order.id }}"
+																		 type="checkbox" id="blankCheckbox" name="prod" value="{{ one_prod.id }}">
 															<h4>{{ one_prod.product.name }}</h4>
 														</div>
 														<p>
@@ -135,6 +136,11 @@
 											</div>
 										</div>
 										{% endfor %}
+
+										{% if order.0.comment != '' %}
+										<h6 class="text-secondary my-3">Комментарий: {{ order.0.comment }}</h6>
+										{% endif %}
+
 										<div class="d-flex justify-content-between mb-2">
 											<div class="custom-control custom-switch">
 												<input type="checkbox" class="custom-control-input" id="customSwitch{{ order.order.id }}"
@@ -187,6 +193,11 @@
 										</div>
 									</div>
 									{% endfor %}
+
+									{% if order.0.comment != '' %}
+									<h6 class="text-secondary my-3">Комментарий: {{ order.0.comment }}</h6>
+									{% endif %}
+
 									<div class="mb-2">
 										<h5 class="text-primary text-right">Итого: {{ order.0.order.price }}р</h5>
 									</div>
@@ -239,36 +250,40 @@
 									</div>
 
 									{% for product in order.5 %}
-										<div class="border border-secondary rounded p-3 mb-2">
-											<div class="row">
-												<div class="col-12 col-lg-2">
-													<a href="{{ product.0 }}">
-														<img src="{{ product.0 }}" class="rounded d-block mx-auto" style="max-width: 100px; max-height: 100px;">
-													</a>
+									<div class="border border-secondary rounded p-3 mb-2">
+										<div class="row">
+											<div class="col-12 col-lg-2">
+												<a href="{{ product.0 }}">
+													<img src="{{ product.0 }}" class="rounded d-block mx-auto" style="max-width: 100px; max-height: 100px;">
+												</a>
+											</div>
+											<div class="col-12 col-lg-10 pl-3 pl-lg-0">
+												<div class="d-flex">
+													<h5 class="text-secondary">{{ product.1 }}</h5>
+													<h6 class="ml-auto">{{ product.2 }} руб</h6>
 												</div>
-												<div class="col-12 col-lg-10 pl-3 pl-lg-0">
-													<div class="d-flex">
-														<h5 class="text-secondary">{{ product.1 }}</h5>
-														<h6 class="ml-auto">{{ product.2 }} руб</h6>
-													</div>
-													<p class="text-secondary">
-														<small>
-														{% for char in product.3.items %}
-															{{ char.0 }}: {{ char.1 }}
-														{% endfor %}
-														</small>
-													</p>
-													<div class="row">
-														{% for item in product.4 %}
-														<div class="col-2 text-secondary text-center"><small>{{ item.0 }} шт</small></div>
-														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ item.1 }}</small></div>
-														<div class="col-3 text-secondary"><small>до {{ item.2 }}</small></div>
-														{% endfor %}
-													</div>
+												<p class="text-secondary">
+													<small>
+													{% for char in product.3.items %}
+														{{ char.0 }}: {{ char.1 }}
+													{% endfor %}
+													</small>
+												</p>
+												<div class="row">
+													{% for item in product.4 %}
+													<div class="col-2 text-secondary text-center"><small>{{ item.0 }} шт</small></div>
+													<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ item.1 }}</small></div>
+													<div class="col-3 text-secondary"><small>до {{ item.2 }}</small></div>
+													{% endfor %}
 												</div>
 											</div>
 										</div>
+									</div>
 									{% endfor %}
+
+									{% if order.7 != '' %}
+									<h6 class="text-secondary my-3">Комментарий: {{ order.7 }}</h6>
+									{% endif %}
 
 									<div class="d-flex">
 										<h5>Сумма заказа: {{ order.3 }} руб</h5>
@@ -329,36 +344,40 @@
 									</div>
 
 									{% for product in order.5 %}
-										<div class="border border-secondary rounded p-3 mb-2">
-											<div class="row">
-												<div class="col-12 col-lg-2">
-													<a href="{{ product.0 }}">
-														<img src="{{ product.0 }}" class="rounded d-block mx-auto" style="max-width: 100px; max-height: 100px;">
-													</a>
+									<div class="border border-secondary rounded p-3 mb-2">
+										<div class="row">
+											<div class="col-12 col-lg-2">
+												<a href="{{ product.0 }}">
+													<img src="{{ product.0 }}" class="rounded d-block mx-auto" style="max-width: 100px; max-height: 100px;">
+												</a>
+											</div>
+											<div class="col-12 col-lg-10 pl-3 pl-lg-0">
+												<div class="d-flex">
+													<h5 class="text-secondary">{{ product.1 }}</h5>
+													<h6 class="ml-auto">{{ product.2 }} руб</h6>
 												</div>
-												<div class="col-12 col-lg-10 pl-3 pl-lg-0">
-													<div class="d-flex">
-														<h5 class="text-secondary">{{ product.1 }}</h5>
-														<h6 class="ml-auto">{{ product.2 }} руб</h6>
-													</div>
-													<p class="text-secondary">
-														<small>
-														{% for char in product.3.items %}
-															{{ char.0 }}: {{ char.1 }}
-														{% endfor %}
-														</small>
-													</p>
-													<div class="row">
-														{% for item in product.4 %}
-														<div class="col-2 text-secondary text-center"><small>{{ item.0 }} шт</small></div>
-														<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ item.1 }}</small></div>
-														<div class="col-3 text-secondary"><small>до {{ item.2 }}</small></div>
-														{% endfor %}
-													</div>
+												<p class="text-secondary">
+													<small>
+													{% for char in product.3.items %}
+														{{ char.0 }}: {{ char.1 }}
+													{% endfor %}
+													</small>
+												</p>
+												<div class="row">
+													{% for item in product.4 %}
+													<div class="col-2 text-secondary text-center"><small>{{ item.0 }} шт</small></div>
+													<div class="col-7"><small><i class="fas fa-map-marker-alt text-primary"></i> {{ item.1 }}</small></div>
+													<div class="col-3 text-secondary"><small>до {{ item.2 }}</small></div>
+													{% endfor %}
 												</div>
 											</div>
 										</div>
+									</div>
 									{% endfor %}
+
+									{% if order.7 != '' %}
+									<h6 class="text-secondary my-3">Комментарий: {{ order.7 }}</h6>
+									{% endif %}
 
 									<div class="d-flex">
 										<h5>Сумма заказа: {{ order.3 }} руб</h5>
@@ -420,6 +439,48 @@
 					<a href="{% url 'new_orders' %}" class="btn btn-primary">Не отменять</a>
 					<a href="#" class="btn btn-primary ml-auto" id="cancel_order_url">Отменить</a>
 				</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter addresses model -->
+<div class="modal fade show" id="filter_addresses_model"
+		 style="display: none; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 750px;">
+    <div class="modal-content">
+      <div class="modal-body">
+				<div class="d-flex mb-3">
+					<h5 class="mt-2">Выберите адрес(а)</h5>
+					<button class="close ml-auto px-2" onclick="close_filter_addresses()">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+
+				<button type="button" class="btn btn-outline-secondary btn-sm">Выбрать всё</button>
+
+				<div id="addresses-list" class="mb-3 mt-3">
+					<div class="d-flex px-3 mb-1">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="flexCheckDefault">
+							<label class="form-check-label ml-3" for="flexCheckDefault">
+								<small>
+									<i class="fas fa-map-marker-alt text-primary" aria-hidden="true"></i>
+									399851, г. Кунашак, ул. Иркутская, дом 191, квартира 537
+								</small>
+							</label>
+						</div>
+
+						<div class="ml-auto">
+							<small>до 19.02.2021 13:20</small>
+						</div>
+					</div>
+				</div>
+
+				<div class="d-flex mb-2">
+					<button class="btn btn-primary btn-sm ml-auto">Применить</button>
+				</div>
+
       </div>
     </div>
   </div>

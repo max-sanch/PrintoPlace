@@ -49,7 +49,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-	"""---"""
+	"""Базовый класс всех пользователей"""
 	email = models.EmailField(
 		verbose_name='Email',
 		max_length=255,
@@ -103,6 +103,18 @@ class User(AbstractBaseUser):
 	def has_perm(self, perm, obj=None):
 		return True
 
+	def has_perms(self, perm_list, obj=None):
+		for perm in perm_list:
+			if perm == 'is_auth' and not self.is_authenticated:
+				return False
+			if perm == 'is_admin' and not self.is_admin:
+				return False
+			if perm == 'is_company' and not self.is_company:
+				return False
+			if perm == 'is_not_company' and self.is_company:
+				return False
+		return True
+
 	def has_module_perms(self, app_label):
 		return True
 
@@ -112,7 +124,7 @@ class User(AbstractBaseUser):
 
 
 class Company(models.Model):
-	"""Пользователь-исполнитель — данные о компании предоставляемой продукт"""
+	"""Пользователь-исполнитель — данные о компании предоставляемой продукцию"""
 	user = models.OneToOneField('User', on_delete=models.CASCADE)
 	addresses = ArrayField(
 		models.CharField(max_length=256),
@@ -268,6 +280,7 @@ class OrderDetail(models.Model):
 	)
 	datetime = models.DateTimeField(auto_now_add=True)
 	STATUS = (
+		(0, 'Формирование заказа'),
 		(1, 'Новый заказ'),
 		(2, 'Ожидания взятия в работу'),
 		(3, 'Взят в работу'),
@@ -299,8 +312,8 @@ class OrderExecutionProposal(models.Model):
 	order = models.ForeignKey('Order', on_delete=models.CASCADE)
 	company = models.ForeignKey('Company', on_delete=models.CASCADE)
 	order_products = models.JSONField()
-	price = models.IntegerField(verbose_name='Общая стоимость')
-	is_paid = models.BooleanField(verbose_name='Оплачено', default=False)
+	price = models.IntegerField(verbose_name='Общая стоимость предложения')
+	is_paid = models.BooleanField(verbose_name='Статус оплаты для размещения предложения', default=False)
 	is_partially = models.BooleanField(verbose_name='Частичное выполнение', default=False)
 
 	objects = models.Manager
@@ -310,7 +323,7 @@ class OrderProposalTemp(models.Model):
 	"""Временное сохранение списка предложений"""
 	order = models.OneToOneField('Order', on_delete=models.CASCADE)
 	proposal = models.JSONField()
-	count = models.IntegerField(verbose_name='Количество предложений')
+	count = models.IntegerField(verbose_name='Количество предложений на один заказ')
 
 	objects = models.Manager
 

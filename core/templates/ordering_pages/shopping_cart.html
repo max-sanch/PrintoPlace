@@ -30,9 +30,9 @@
 								</p>
 							</div>
 
-							<div class="form-row">
+							<div class="row">
 								<div class="col-12 col-lg-6 mb-3">
-									<input type="text" class="form-control" readonly placeholder="Количество" value="{{ one_prod.count }}">
+									<h5 class="text-secondary">{{ one_prod.count }} шт</h5>
 								</div>
 							</div>
 
@@ -87,7 +87,7 @@
 	</div>
 </div>
 
-<!-- Shipping and payment -->
+<!-- More product -->
 <div class="bg-light">
 	<div class="container py-4">
 		<h3 class="text-secondary mb-4">Добавить новый продукт</h3>
@@ -103,6 +103,12 @@
 			{% empty %}
 			<h3 class="text-center text-secondary my-4">Ничего не найдено!</h3>
 			{% endfor %}
+			<div class="col-6 col-md-3 col-lg-2">
+				<a href="{% url 'products' %}" class="text-secondary display-3 px-auto">
+					<img src="{% get_static_prefix %}image/more_icon.svg" width="130px" style="filter: brightness(.95); ">
+				</a>
+				<h5 class="text-primary"><small>Больше товаров</small></h5>
+			</div>
 		</div>
 	</div>
 </div>
