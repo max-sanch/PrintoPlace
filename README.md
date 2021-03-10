@@ -67,5 +67,5 @@ EMAIL_USE_TLS=True
 	
 #### <a name="add-product"></a>1: Добавить товар
 
-Для теста можно добавить товар перейдя по ссылке: `localhost:8000/create_product/`
+Для теста можно добавить товар перейдя по ссылке: `localhost:1337/create_product/`
 
