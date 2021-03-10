@@ -8,6 +8,7 @@ RUN pip install --upgrade pip
 
 COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip install -r requirements.txt
+RUN pip install gunicorn
 
 RUN apt-get update && apt-get install netcat -y
 

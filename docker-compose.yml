@@ -3,12 +3,12 @@ version: '3.8'
 services:
   app:
     build: .
-    command: python manage.py runserver 0:8000
+    command: gunicorn printoplace.wsgi:application --bind 0:8000
     volumes:
       - static:/usr/src/app/static
       - media:/usr/src/app/media
-    ports:
-      - 8000:8000
+    expose:
+      - 8000
     env_file:
       - ./printoplace/.env
     restart: always
@@ -25,7 +25,17 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - PGDATA=/var/lib/postgresql/data/pgdata
+  nginx:
+    build: nginx/.
+    volumes:
+      - static:/usr/src/app/static
+      - media:/usr/src/app/media
+    ports:
+      - 1337:80
+    depends_on:
+      - app
 
 volumes:
+  db_data:
   static:
   media:
