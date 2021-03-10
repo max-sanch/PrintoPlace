@@ -1,2 +1,9 @@
 .idea
+
+# Переменные окружения
 printoplace/.env
+
+# Медиафайлы
+!media
+/media/company_logos/
+/media/design_product/

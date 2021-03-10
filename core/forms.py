@@ -148,7 +148,7 @@ class OrderingForm(forms.Form):
 				other_design_url=[],
 				total_count=prod.count,
 				price=prod.product.price * prod.count,
-				count_and_address={'items': []}
+				count_and_address=dict()
 			)
 			order_product.save()
 		return price

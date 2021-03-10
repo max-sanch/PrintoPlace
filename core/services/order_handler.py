@@ -102,7 +102,7 @@ def choose_offer(order_id, offer):
 	proposal = get_object_or_404(models.OrderProposalTemp, order__id=order_id).proposal[offer]
 
 	for company in proposal[0].items():
-		company_obj = get_object_or_404(models.Company, user__company_name=company[0])
+		company_obj = get_object_or_404(models.Company, user__company_name=company[0]) # fix
 		order_products = dict()
 		price = 0
 

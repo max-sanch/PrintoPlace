@@ -302,6 +302,7 @@ class OrderProduct(models.Model):
 	other_design_url = ArrayField(models.CharField(max_length=128), size=None)
 	total_count = models.IntegerField(verbose_name='Общее количество товара')
 	price = models.IntegerField(verbose_name='Стоимость')
+	# {'ID_адреса': Количество, ...}
 	count_and_address = models.JSONField(verbose_name='Адреса доставки и количество товара')
 
 	objects = models.Manager
@@ -311,6 +312,7 @@ class OrderExecutionProposal(models.Model):
 	"""Предложения от компаний на выполнение заказа"""
 	order = models.ForeignKey('Order', on_delete=models.CASCADE)
 	company = models.ForeignKey('Company', on_delete=models.CASCADE)
+	# {'ID_продукта': (Количество, ID_адреса, Цена), ...}
 	order_products = models.JSONField()
 	price = models.IntegerField(verbose_name='Общая стоимость предложения')
 	is_paid = models.BooleanField(verbose_name='Статус оплаты для размещения предложения', default=False)
