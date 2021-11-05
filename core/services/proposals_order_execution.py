@@ -3,10 +3,13 @@ from django.shortcuts import get_object_or_404
 
 
 def start(order_id):
+	"""Получить список всех возможных предложений в нужном формате"""
 	result = []
 	counter = 0
 	total_price = 0
 	order_detail = OrderDetail.objects.get(order__id=order_id)
+
+	# Получаем список всех возможных предложений и формируем ответ в нужном формате
 	for data in get_proposals(order_id):
 		proposal = [dict(), 0, counter, 0]
 		counter += 1
@@ -60,6 +63,7 @@ def start(order_id):
 
 
 def save_proposal_temp(proposal, order_id):
+	"""Сохранить в базу данных все возможные предложения в итоговом формате"""
 	OrderProposalTemp.objects.update_or_create(
 		order=get_object_or_404(Order, id=order_id),
 		defaults={
@@ -70,6 +74,7 @@ def save_proposal_temp(proposal, order_id):
 
 
 def get_proposals(order_id):
+	"""Получить список всех возможных предложений(полных, полных скомпонованных, неполных скомпонованных и остальных)"""
 	proposals = OrderExecutionProposal.objects.filter(order__id=order_id)
 	order_products = OrderProduct.objects.filter(order__id=order_id)
 	execution_full_order = []
@@ -78,6 +83,7 @@ def get_proposals(order_id):
 	if len(proposals) == 0:
 		return []
 
+	# Разделяем полные и неполные предложения
 	for proposal in proposals:
 		if len(proposal.order_products) != len(order_products):
 			other_proposals.append(proposal)
@@ -88,13 +94,10 @@ def get_proposals(order_id):
 				other_proposals.append(proposal)
 				break
 		else:
-			if len(execution_full_order) != 0:
-				if proposal.price <= execution_full_order[0].price:
-					execution_full_order.insert(0, proposal)
-				else:
-					execution_full_order.append(proposal)
-			else:
-				execution_full_order.append(proposal)
+			execution_full_order.append(proposal)
+
+	# Сортируем полные предложения по общей стоимости
+	execution_full_order.sort(key=lambda n: n.price)
 
 	if len(execution_full_order) == len(proposals):
 		return [((x, None, 0),) for x in execution_full_order] + [((x, None, 1),) for x in other_proposals]
@@ -108,6 +111,7 @@ def get_proposals(order_id):
 
 
 def _get_other_proposals(proposals, order_products):
+	"""Получить список скомпонованных предложений(полных и неполных со списком недостающих продуктов) из неполных предложений"""
 	result = []
 	missing_items = _get_list_missing_items(proposals, order_products)
 	missing_items.sort(key=lambda n: n[0])
@@ -155,6 +159,7 @@ def _get_other_proposals(proposals, order_products):
 
 
 def _get_list_missing_items(proposals, order_products):
+	"""Получить список с количеством всех недостающих продуктов в предложениях"""
 	result = []
 
 	for proposal in proposals:
@@ -184,6 +189,7 @@ def _get_list_missing_items(proposals, order_products):
 
 
 def _search_missing_items(proposal, product):
+	"""Получить количество всех недостающих продуктов в конкретном предложении если они есть"""
 	result = []
 	for data in proposal.order_products[str(product.id)]:
 		if data[0] < product.count_and_address[str(data[1])]:
@@ -192,4 +198,5 @@ def _search_missing_items(proposal, product):
 
 
 def _get_count_product(proposal, product_id):
+	"""Получить общее количество одного продукта в конкретном предложении"""
 	return sum([x[0] for x in proposal.order_products[str(product_id)]])
